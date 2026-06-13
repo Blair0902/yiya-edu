@@ -1,13 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
+import { FireworksCanvas } from "@/components/Fireworks";
 import { BookOpen, Calculator, Languages, Scroll, Brain, HardHat, Sparkles } from "lucide-react";
+import { useState, useRef } from "react";
 
 export const Route = createFileRoute("/challenges")({
   head: () => ({ meta: [{ title: "挑战 · 学科打卡" }, { name: "description", content: "学科能力、古诗文与 AI 时代核心能力打卡。" }] }),
   component: Challenges,
 });
 
-const groups = [
+type Item = { icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>; name: string; energy: number; done: number; total: number; color: string; tag?: string };
+
+type Group = { title: string; items: Item[] };
+
+const initialGroups: Group[] = [
   {
     title: "学科能力",
     items: [
@@ -33,49 +39,87 @@ const groups = [
 ];
 
 function Challenges() {
+  const [groups, setGroups] = useState(initialGroups);
+  const [showFireworks, setShowFireworks] = useState(false);
+  const fireworksTimer = useRef<ReturnType<typeof setTimeout>>(null);
+
+  const handleCheckIn = (groupIndex: number, itemIndex: number) => {
+    setGroups((gs) => {
+      const g = gs[groupIndex];
+      const it = g.items[itemIndex];
+      if (it.done >= it.total) return gs;
+      const updated: Group[] = gs.map((grp, gi) =>
+        gi !== groupIndex
+          ? grp
+          : {
+              ...grp,
+              items: grp.items.map((item, ii) =>
+                ii !== itemIndex ? item : { ...item, done: Math.min(item.done + 1, item.total) }
+              ),
+            }
+      );
+      const newDone = updated[groupIndex].items[itemIndex].done;
+      const newPct = (newDone / it.total) * 100;
+      if (newPct === 100) {
+        setShowFireworks(true);
+        if (fireworksTimer.current) clearTimeout(fireworksTimer.current);
+        fireworksTimer.current = setTimeout(() => setShowFireworks(false), 2500);
+      }
+      return updated;
+    });
+  };
+
   return (
     <AppShell>
-      <header className="px-5 pb-3 pt-8">
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary">Challenges</p>
-        <h1 className="mt-1 text-3xl">学科打卡 🏆</h1>
-        <p className="mt-1 text-sm text-muted-foreground">每完成一项任务，豆豆都会闪闪发光～</p>
-      </header>
+      <div className="relative">
+        <FireworksCanvas active={showFireworks} />
+        <header className="px-5 pb-3 pt-8">
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary">Challenges</p>
+          <h1 className="mt-1 text-3xl">学科打卡 🏆</h1>
+          <p className="mt-1 text-sm text-muted-foreground">每完成一项任务，豆豆都会闪闪发光～</p>
+        </header>
 
-      {groups.map((g) => (
-        <section key={g.title} className="mt-2 px-4 pb-2">
-          <h3 className="mb-2 px-1 text-sm font-bold text-muted-foreground">{g.title}</h3>
-          <ul className="flex flex-col gap-3">
-            {g.items.map((it) => {
-              const pct = (it.done / it.total) * 100;
-              const Icon = it.icon;
-              return (
-                <li key={it.name} className="card-pop p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: `color-mix(in oklab, ${it.color} 20%, white)` }}>
-                      <Icon className="h-6 w-6" style={{ color: it.color }} />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-bold leading-tight">{it.name}</h4>
-                        {it.tag && <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">{it.tag}</span>}
+        {groups.map((g, gi) => (
+          <section key={g.title} className="mt-2 px-4 pb-2">
+            <h3 className="mb-2 px-1 text-sm font-bold text-muted-foreground">{g.title}</h3>
+            <ul className="flex flex-col gap-3">
+              {g.items.map((it, ii) => {
+                const pct = (it.done / it.total) * 100;
+                const Icon = it.icon;
+                const finished = pct === 100;
+                return (
+                  <li key={it.name} className="card-pop p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: `color-mix(in oklab, ${it.color} 20%, white)` }}>
+                        <Icon className="h-6 w-6" style={{ color: it.color }} />
                       </div>
-                      <p className="mt-0.5 flex items-center gap-1 text-xs text-primary">
-                        <Sparkles className="h-3 w-3" /> +{it.energy} 能量 · {it.done}/{it.total}
-                      </p>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-bold leading-tight">{it.name}</h4>
+                          {it.tag && <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">{it.tag}</span>}
+                        </div>
+                        <p className="mt-0.5 flex items-center gap-1 text-xs text-primary">
+                          <Sparkles className="h-3 w-3" /> +{it.energy} 能量 · {it.done}/{it.total}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => handleCheckIn(gi, ii)}
+                        disabled={finished}
+                        className={`rounded-full px-3 py-1.5 text-sm font-bold transition-all ${finished ? "bg-muted text-muted-foreground" : "bg-primary text-primary-foreground active:scale-95"}`}
+                      >
+                        {finished ? "已完成" : "打卡"}
+                      </button>
                     </div>
-                    <button className="rounded-full bg-primary px-3 py-1.5 text-sm font-bold text-primary-foreground">
-                      {pct === 100 ? "已完成" : "打卡"}
-                    </button>
-                  </div>
-                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-secondary">
-                    <div className="h-full rounded-full" style={{ width: `${pct}%`, background: it.color }} />
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      ))}
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-secondary">
+                      <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: it.color }} />
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        ))}
+      </div>
     </AppShell>
   );
 }
