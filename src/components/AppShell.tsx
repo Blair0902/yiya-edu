@@ -1,14 +1,14 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { Home, Trophy, Store, Sparkles, Users, User } from "lucide-react";
+import { Home, Trophy, Store, Tent, Backpack, Users } from "lucide-react";
 
 const TABS = [
   { to: "/", label: "首页", icon: Home },
   { to: "/challenges", label: "挑战", icon: Trophy },
   { to: "/shop", label: "商店", icon: Store },
-  { to: "/pet", label: "宠物", icon: Sparkles },
+  { to: "/room", label: "家", icon: Tent },
+  { to: "/bag", label: "背包", icon: Backpack },
   { to: "/friends", label: "好友", icon: Users },
-  { to: "/me", label: "我的", icon: User },
 ] as const;
 
 export function AppShell({ children, bgClass = "bg-background" }: { children: ReactNode; bgClass?: string }) {

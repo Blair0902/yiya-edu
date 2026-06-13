@@ -9,26 +9,28 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WeiyanRouteImport } from './routes/weiyan'
 import { Route as ShopRouteImport } from './routes/shop'
-import { Route as PetRouteImport } from './routes/pet'
-import { Route as MeRouteImport } from './routes/me'
+import { Route as RoomRouteImport } from './routes/room'
 import { Route as FriendsRouteImport } from './routes/friends'
+import { Route as EmotionRouteImport } from './routes/emotion'
 import { Route as ChallengesRouteImport } from './routes/challenges'
+import { Route as BagRouteImport } from './routes/bag'
 import { Route as IndexRouteImport } from './routes/index'
 
+const WeiyanRoute = WeiyanRouteImport.update({
+  id: '/weiyan',
+  path: '/weiyan',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PetRoute = PetRouteImport.update({
-  id: '/pet',
-  path: '/pet',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MeRoute = MeRouteImport.update({
-  id: '/me',
-  path: '/me',
+const RoomRoute = RoomRouteImport.update({
+  id: '/room',
+  path: '/room',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FriendsRoute = FriendsRouteImport.update({
@@ -36,9 +38,19 @@ const FriendsRoute = FriendsRouteImport.update({
   path: '/friends',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmotionRoute = EmotionRouteImport.update({
+  id: '/emotion',
+  path: '/emotion',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ChallengesRoute = ChallengesRouteImport.update({
   id: '/challenges',
   path: '/challenges',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BagRoute = BagRouteImport.update({
+  id: '/bag',
+  path: '/bag',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -49,48 +61,88 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bag': typeof BagRoute
   '/challenges': typeof ChallengesRoute
+  '/emotion': typeof EmotionRoute
   '/friends': typeof FriendsRoute
-  '/me': typeof MeRoute
-  '/pet': typeof PetRoute
+  '/room': typeof RoomRoute
   '/shop': typeof ShopRoute
+  '/weiyan': typeof WeiyanRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bag': typeof BagRoute
   '/challenges': typeof ChallengesRoute
+  '/emotion': typeof EmotionRoute
   '/friends': typeof FriendsRoute
-  '/me': typeof MeRoute
-  '/pet': typeof PetRoute
+  '/room': typeof RoomRoute
   '/shop': typeof ShopRoute
+  '/weiyan': typeof WeiyanRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/bag': typeof BagRoute
   '/challenges': typeof ChallengesRoute
+  '/emotion': typeof EmotionRoute
   '/friends': typeof FriendsRoute
-  '/me': typeof MeRoute
-  '/pet': typeof PetRoute
+  '/room': typeof RoomRoute
   '/shop': typeof ShopRoute
+  '/weiyan': typeof WeiyanRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/challenges' | '/friends' | '/me' | '/pet' | '/shop'
+  fullPaths:
+    | '/'
+    | '/bag'
+    | '/challenges'
+    | '/emotion'
+    | '/friends'
+    | '/room'
+    | '/shop'
+    | '/weiyan'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/challenges' | '/friends' | '/me' | '/pet' | '/shop'
-  id: '__root__' | '/' | '/challenges' | '/friends' | '/me' | '/pet' | '/shop'
+  to:
+    | '/'
+    | '/bag'
+    | '/challenges'
+    | '/emotion'
+    | '/friends'
+    | '/room'
+    | '/shop'
+    | '/weiyan'
+  id:
+    | '__root__'
+    | '/'
+    | '/bag'
+    | '/challenges'
+    | '/emotion'
+    | '/friends'
+    | '/room'
+    | '/shop'
+    | '/weiyan'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BagRoute: typeof BagRoute
   ChallengesRoute: typeof ChallengesRoute
+  EmotionRoute: typeof EmotionRoute
   FriendsRoute: typeof FriendsRoute
-  MeRoute: typeof MeRoute
-  PetRoute: typeof PetRoute
+  RoomRoute: typeof RoomRoute
   ShopRoute: typeof ShopRoute
+  WeiyanRoute: typeof WeiyanRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/weiyan': {
+      id: '/weiyan'
+      path: '/weiyan'
+      fullPath: '/weiyan'
+      preLoaderRoute: typeof WeiyanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shop': {
       id: '/shop'
       path: '/shop'
@@ -98,18 +150,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/pet': {
-      id: '/pet'
-      path: '/pet'
-      fullPath: '/pet'
-      preLoaderRoute: typeof PetRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/me': {
-      id: '/me'
-      path: '/me'
-      fullPath: '/me'
-      preLoaderRoute: typeof MeRouteImport
+    '/room': {
+      id: '/room'
+      path: '/room'
+      fullPath: '/room'
+      preLoaderRoute: typeof RoomRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/friends': {
@@ -119,11 +164,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FriendsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/emotion': {
+      id: '/emotion'
+      path: '/emotion'
+      fullPath: '/emotion'
+      preLoaderRoute: typeof EmotionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/challenges': {
       id: '/challenges'
       path: '/challenges'
       fullPath: '/challenges'
       preLoaderRoute: typeof ChallengesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bag': {
+      id: '/bag'
+      path: '/bag'
+      fullPath: '/bag'
+      preLoaderRoute: typeof BagRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -138,11 +197,13 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BagRoute: BagRoute,
   ChallengesRoute: ChallengesRoute,
+  EmotionRoute: EmotionRoute,
   FriendsRoute: FriendsRoute,
-  MeRoute: MeRoute,
-  PetRoute: PetRoute,
+  RoomRoute: RoomRoute,
   ShopRoute: ShopRoute,
+  WeiyanRoute: WeiyanRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

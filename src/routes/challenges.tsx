@@ -1,17 +1,35 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
-import { Trophy, Clock } from "lucide-react";
+import { BookOpen, Calculator, Languages, Scroll, Brain, HardHat, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/challenges")({
-  head: () => ({ meta: [{ title: "挑战 · 豆豆星球" }, { name: "description", content: "和宝宝一起完成 7 日小挑战。" }] }),
+  head: () => ({ meta: [{ title: "挑战 · 学科打卡" }, { name: "description", content: "学科能力、古诗文与 AI 时代核心能力打卡。" }] }),
   component: Challenges,
 });
 
-const challenges = [
-  { id: 1, title: "7 日早睡小达人", emoji: "🌙", desc: "连续 7 天 21:00 前上床", days: 5, total: 7, reward: "解锁睡帽装扮", color: "from-sky-200 to-indigo-200" },
-  { id: 2, title: "蔬菜超人挑战", emoji: "🥦", desc: "每天吃一种新蔬菜", days: 2, total: 5, reward: "+50 能量币", color: "from-emerald-200 to-lime-200" },
-  { id: 3, title: "亲子共读马拉松", emoji: "📚", desc: "和家长共读 14 天", days: 9, total: 14, reward: "限定故事书家具", color: "from-amber-200 to-orange-200" },
-  { id: 4, title: "整理小帮手", emoji: "🧸", desc: "睡前自己收拾玩具", days: 0, total: 7, reward: "稀有玩具盒", color: "from-rose-200 to-pink-200" },
+const groups = [
+  {
+    title: "学科能力",
+    items: [
+      { icon: BookOpen, name: "语文 · 一日一句", energy: 15, done: 3, total: 5, color: "oklch(0.86 0.12 25)" },
+      { icon: Calculator, name: "数学 · 口算 10 题", energy: 15, done: 1, total: 3, color: "oklch(0.82 0.13 230)" },
+      { icon: Languages, name: "英语 · 5 单词成文", energy: 20, done: 0, total: 1, color: "oklch(0.82 0.14 150)", tag: "AI 生成" },
+    ],
+  },
+  {
+    title: "文化素养",
+    items: [
+      { icon: Scroll, name: "古诗文 · 每日一诵", energy: 12, done: 7, total: 7, color: "oklch(0.8 0.13 60)" },
+      { icon: Sparkles, name: "754 · 思维训练", energy: 18, done: 2, total: 3, color: "oklch(0.78 0.16 320)" },
+    ],
+  },
+  {
+    title: "AI 时代核心能力",
+    items: [
+      { icon: Brain, name: "思辨：今天的一个为什么", energy: 20, done: 0, total: 1, color: "oklch(0.74 0.16 280)" },
+      { icon: HardHat, name: "六顶思考帽 · 角色练习", energy: 25, done: 1, total: 1, color: "oklch(0.72 0.18 35)", tag: "新" },
+    ],
+  },
 ];
 
 function Challenges() {
@@ -19,41 +37,45 @@ function Challenges() {
     <AppShell>
       <header className="px-5 pb-3 pt-8">
         <p className="text-xs font-semibold uppercase tracking-widest text-primary">Challenges</p>
-        <h1 className="mt-1 text-3xl">小小挑战 🏆</h1>
-        <p className="mt-1 text-sm text-muted-foreground">完成挑战，赢取专属奖励～</p>
+        <h1 className="mt-1 text-3xl">学科打卡 🏆</h1>
+        <p className="mt-1 text-sm text-muted-foreground">每完成一项任务，豆豆都会闪闪发光～</p>
       </header>
 
-      <div className="flex gap-2 overflow-x-auto px-5 pb-3 text-sm">
-        {["全部", "进行中", "新挑战", "已完成"].map((t, i) => (
-          <button key={t} className={`whitespace-nowrap rounded-full px-4 py-1.5 font-semibold ${i === 0 ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>{t}</button>
-        ))}
-      </div>
-
-      <ul className="flex flex-col gap-4 px-4">
-        {challenges.map((c) => {
-          const pct = (c.days / c.total) * 100;
-          return (
-            <li key={c.id} className={`card-pop overflow-hidden bg-gradient-to-br ${c.color}`}>
-              <div className="bg-card/70 p-4 backdrop-blur-sm">
-                <div className="flex items-start gap-3">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-card text-3xl shadow-sm">{c.emoji}</div>
-                  <div className="flex-1">
-                    <h3 className="text-lg leading-tight">{c.title}</h3>
-                    <p className="text-sm text-muted-foreground">{c.desc}</p>
+      {groups.map((g) => (
+        <section key={g.title} className="mt-2 px-4 pb-2">
+          <h3 className="mb-2 px-1 text-sm font-bold text-muted-foreground">{g.title}</h3>
+          <ul className="flex flex-col gap-3">
+            {g.items.map((it) => {
+              const pct = (it.done / it.total) * 100;
+              const Icon = it.icon;
+              return (
+                <li key={it.name} className="card-pop p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: `color-mix(in oklab, ${it.color} 20%, white)` }}>
+                      <Icon className="h-6 w-6" style={{ color: it.color }} />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-bold leading-tight">{it.name}</h4>
+                        {it.tag && <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">{it.tag}</span>}
+                      </div>
+                      <p className="mt-0.5 flex items-center gap-1 text-xs text-primary">
+                        <Sparkles className="h-3 w-3" /> +{it.energy} 能量 · {it.done}/{it.total}
+                      </p>
+                    </div>
+                    <button className="rounded-full bg-primary px-3 py-1.5 text-sm font-bold text-primary-foreground">
+                      {pct === 100 ? "已完成" : "打卡"}
+                    </button>
                   </div>
-                </div>
-                <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-card">
-                  <div className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
-                </div>
-                <div className="mt-2 flex items-center justify-between text-xs">
-                  <span className="flex items-center gap-1 text-muted-foreground"><Clock className="h-3.5 w-3.5" />{c.days}/{c.total} 天</span>
-                  <span className="flex items-center gap-1 font-semibold text-foreground"><Trophy className="h-3.5 w-3.5 text-primary" />{c.reward}</span>
-                </div>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-secondary">
+                    <div className="h-full rounded-full" style={{ width: `${pct}%`, background: it.color }} />
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ))}
     </AppShell>
   );
 }
