@@ -19,8 +19,8 @@ const groups = [
   {
     title: "设置",
     items: [
-      { icon: Settings, label: "通用设置" },
-      { icon: HelpCircle, label: "帮助与反馈" },
+      { icon: Settings, label: "通用设置", hint: "" },
+      { icon: HelpCircle, label: "帮助与反馈", hint: "" },
     ],
   },
 ];
