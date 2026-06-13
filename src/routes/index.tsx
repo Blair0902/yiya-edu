@@ -1,115 +1,158 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import petImg from "@/assets/pet.png";
 import sceneImg from "@/assets/scene.jpg";
-import { Sparkles, Plus, Check, Flame } from "lucide-react";
+import { Sparkles, Check, Settings, Share2, Smile, Volume2, MessageCircleHeart, Sparkle, Flame } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "豆豆星球 · 亲子微习惯" },
-      { name: "description", content: "和孩子一起养宠物，培养每日小小好习惯。" },
+      { title: "豆豆星球 · 亲子习惯 & 心灵相通" },
+      { name: "description", content: "完成微小任务，养成宠物，看见彼此的感受与需要。" },
     ],
   }),
-  component: Home,
+  component: HomePage,
 });
 
-const initialHabits = [
-  { id: 1, emoji: "🪥", title: "认真刷牙", who: "宝宝", energy: 10, done: true },
-  { id: 2, emoji: "📚", title: "亲子共读 10 分钟", who: "家长", energy: 15, done: false },
-  { id: 3, emoji: "🧦", title: "自己穿袜子", who: "宝宝", energy: 8, done: false },
-  { id: 4, emoji: "🥦", title: "吃一口蔬菜", who: "宝宝", energy: 12, done: false },
+type Task = { id: number; emoji: string; title: string; energy: number; done: boolean; cat: string };
+
+const seed: Task[] = [
+  { id: 1, emoji: "🌅", title: "按时起床", energy: 5, done: true, cat: "健房" },
+  { id: 2, emoji: "🪥", title: "认真刷牙", energy: 5, done: true, cat: "健房" },
+  { id: 3, emoji: "💧", title: "喝一杯水", energy: 5, done: false, cat: "健房" },
+  { id: 4, emoji: "🌬️", title: "三个深呼吸", energy: 8, done: false, cat: "健房" },
+  { id: 5, emoji: "🧘", title: "三个拉伸动作", energy: 8, done: false, cat: "健房" },
+  { id: 6, emoji: "🌟", title: "今天的一个收获", energy: 12, done: false, cat: "自我觉察" },
+  { id: 7, emoji: "💝", title: "今天的一个感恩", energy: 12, done: false, cat: "自我觉察" },
 ];
 
-function Home() {
-  const [habits, setHabits] = useState(initialHabits);
-  const done = habits.filter((h) => h.done).length;
-  const total = habits.length;
-  const energy = habits.filter((h) => h.done).reduce((s, h) => s + h.energy, 0);
-
+function HomePage() {
+  const [tasks, setTasks] = useState(seed);
+  const done = tasks.filter((t) => t.done).length;
+  const energy = tasks.filter((t) => t.done).reduce((s, t) => s + t.energy, 0);
   const toggle = (id: number) =>
-    setHabits((hs) => hs.map((h) => (h.id === id ? { ...h, done: !h.done } : h)));
+    setTasks((ts) => ts.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));
+
+  const groups = ["健房", "自我觉察"];
 
   return (
     <AppShell>
-      <div className="relative">
-        <div
-          className="relative h-72 w-full overflow-hidden"
-          style={{ backgroundImage: `url(${sceneImg})`, backgroundSize: "cover", backgroundPosition: "center bottom" }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
-          <div className="absolute left-4 top-4 flex items-center gap-2">
-            <div className="pill flex items-center gap-1"><Flame className="h-3.5 w-3.5 text-primary" />连续 12 天</div>
+      {/* Top nav */}
+      <div className="sticky top-0 z-30 flex items-center justify-between bg-background/80 px-4 py-3 backdrop-blur-md">
+        <button aria-label="设置" className="flex h-10 w-10 items-center justify-center rounded-full bg-card shadow-sm">
+          <Settings className="h-5 w-5 text-foreground/70" />
+        </button>
+        <div className="flex items-center gap-2">
+          <span className="pill flex items-center gap-1 bg-card"><Flame className="h-3.5 w-3.5 text-primary" />12 天</span>
+          <span className="pill flex items-center gap-1 bg-card"><Sparkles className="h-3.5 w-3.5 text-primary" />{420 + energy}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link to="/emotion" aria-label="情绪标签" className="flex h-10 w-10 items-center justify-center rounded-full bg-card shadow-sm">
+            <Smile className="h-5 w-5 text-berry" />
+          </Link>
+          <button aria-label="分享邀请" className="flex h-10 w-10 items-center justify-center rounded-full bg-card shadow-sm">
+            <Share2 className="h-5 w-5 text-leaf" />
+          </button>
+        </div>
+      </div>
+
+      {/* Pet scene */}
+      <div
+        className="relative -mt-3 h-64 w-full overflow-hidden"
+        style={{ backgroundImage: `url(${sceneImg})`, backgroundSize: "cover", backgroundPosition: "center bottom" }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
+        <img
+          src={petImg}
+          alt="宠物豆豆"
+          width={768}
+          height={768}
+          className="absolute bottom-0 left-1/2 h-52 w-52 -translate-x-1/2 drop-shadow-xl"
+        />
+        <div className="absolute bottom-4 right-3 rounded-2xl bg-card/90 px-3 py-1.5 text-xs font-bold shadow-sm">
+          豆豆 · Lv.4
+        </div>
+      </div>
+
+      {/* Chat 聊天区 */}
+      <section className="px-4">
+        <div className="card-pop relative -mt-6 p-4">
+          <div className="flex items-start gap-3">
+            <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-secondary">
+              <MessageCircleHeart className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="text-xs font-bold uppercase tracking-widest text-primary">有能量的话</p>
+              <p className="mt-1 leading-relaxed">
+                "你今天愿意起床这件事本身，就已经很勇敢了。" 🌱
+              </p>
+              <div className="mt-2 flex gap-2">
+                <button className="flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs font-bold">
+                  <Volume2 className="h-3.5 w-3.5" /> 朗读
+                </button>
+                <Link to="/weiyan" className="flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">
+                  <Sparkle className="h-3.5 w-3.5" /> 微言
+                </Link>
+              </div>
+            </div>
           </div>
-          <div className="absolute right-4 top-4 pill flex items-center gap-1">
-            <Sparkles className="h-3.5 w-3.5 text-primary" /> {energy} 能量
-          </div>
-          <img
-            src={petImg}
-            alt="宠物豆豆"
-            width={768}
-            height={768}
-            className="absolute bottom-0 left-1/2 h-56 w-56 -translate-x-1/2 drop-shadow-xl"
+        </div>
+      </section>
+
+      {/* Daily progress */}
+      <section className="mt-4 px-4">
+        <div className="flex items-end justify-between">
+          <h2 className="text-xl">今日打卡 · {done}/{tasks.length}</h2>
+          <span className="text-xs text-muted-foreground">零压力启动 ✨</span>
+        </div>
+        <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-secondary">
+          <div
+            className="h-full rounded-full transition-all"
+            style={{ width: `${(done / tasks.length) * 100}%`, background: "var(--gradient-sun)" }}
           />
         </div>
+      </section>
 
-        <section className="-mt-4 px-4">
-          <div className="card-pop p-4">
-            <div className="flex items-end justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">今日进度</p>
-                <h2 className="text-2xl">{done} / {total} 个小习惯</h2>
-              </div>
-              <span className="text-3xl">{done === total ? "🥳" : "💪"}</span>
-            </div>
-            <div className="mt-3 h-3 w-full overflow-hidden rounded-full bg-secondary">
-              <div
-                className="h-full rounded-full transition-all"
-                style={{ width: `${(done / total) * 100}%`, background: "var(--gradient-sun)" }}
-              />
-            </div>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {done === total ? "今天太棒啦！豆豆开心地跳起来了～" : "再完成几个，豆豆就要升级啦！"}
-            </p>
-          </div>
-        </section>
-
-        <section className="mt-5 px-4">
-          <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-lg">今日小习惯</h3>
-            <button className="flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-sm font-bold text-primary-foreground shadow-sm">
-              <Plus className="h-4 w-4" /> 添加
-            </button>
-          </div>
-          <ul className="flex flex-col gap-3">
-            {habits.map((h) => (
-              <li key={h.id} className="card-pop flex items-center gap-3 p-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary text-2xl">
-                  {h.emoji}
-                </div>
+      {/* Tasks grouped */}
+      {groups.map((g) => (
+        <section key={g} className="mt-4 px-4">
+          <h3 className="mb-2 px-1 text-sm font-bold text-muted-foreground">
+            {g === "健房" ? "🧘 健房 · 基础自我照亮" : "💗 自我觉察"}
+          </h3>
+          <ul className="flex flex-col gap-2">
+            {tasks.filter((t) => t.cat === g).map((t) => (
+              <li key={t.id} className="card-pop flex items-center gap-3 p-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-secondary text-xl">{t.emoji}</div>
                 <div className="flex-1">
-                  <p className={`font-bold ${h.done ? "text-muted-foreground line-through" : ""}`}>{h.title}</p>
-                  <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
-                    <span className="rounded-full bg-accent px-2 py-0.5 font-semibold text-accent-foreground">{h.who}</span>
-                    <span className="flex items-center gap-0.5"><Sparkles className="h-3 w-3" />+{h.energy}</span>
-                  </div>
+                  <p className={`font-bold ${t.done ? "text-muted-foreground line-through" : ""}`}>{t.title}</p>
+                  <span className="flex items-center gap-0.5 text-xs text-primary">
+                    <Sparkles className="h-3 w-3" /> +{t.energy} 能量
+                  </span>
                 </div>
                 <button
-                  onClick={() => toggle(h.id)}
+                  onClick={() => toggle(t.id)}
                   aria-label="完成"
-                  className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all ${
-                    h.done
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-card text-transparent"
+                  className={`flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all ${
+                    t.done ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-transparent"
                   }`}
                 >
-                  <Check className="h-5 w-5" />
+                  <Check className="h-4 w-4" />
                 </button>
               </li>
             ))}
           </ul>
         </section>
+      ))}
+
+      <div className="mt-4 px-4">
+        <Link to="/challenges" className="card-pop flex items-center justify-between bg-gradient-to-r from-[oklch(0.88_0.1_85)] to-[oklch(0.86_0.13_60)] p-4">
+          <div>
+            <p className="text-xs font-bold uppercase text-primary">学科打卡</p>
+            <p className="text-sm font-bold">语文 / 数学 / 英语 + AI 核心能力</p>
+          </div>
+          <span className="rounded-full bg-card px-3 py-1.5 text-sm font-bold">去挑战 →</span>
+        </Link>
       </div>
     </AppShell>
   );
