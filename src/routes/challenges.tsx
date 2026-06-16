@@ -1,73 +1,114 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { FireworksCanvas } from "@/components/Fireworks";
-import { BookOpen, Calculator, Languages, Scroll, Brain, HardHat, Sparkles } from "lucide-react";
+import {
+  BookOpen, Calculator, Languages, Scroll, Brain, HardHat, Sparkles,
+  Focus, Heart, NotebookPen, Clock, Rocket,
+} from "lucide-react";
 import { useState, useRef } from "react";
 
 export const Route = createFileRoute("/challenges")({
-  head: () => ({ meta: [{ title: "挑战 · 学科打卡" }, { name: "description", content: "学科能力、古诗文与 AI 时代核心能力打卡。" }] }),
+  head: () => ({
+    meta: [
+      { title: "挑战 · 学习 · 自我觉察 · 遇见" },
+      { name: "description", content: "学科能力、AI 时代核心能力、自我觉察与跨时空对话。" },
+    ],
+  }),
   component: Challenges,
 });
 
-type Item = { icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>; name: string; energy: number; done: number; total: number; color: string; tag?: string };
+type Item = {
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+  name: string; energy: number; done: number; total: number; color: string; tag?: string;
+};
+type Sub = { title: string; items: Item[] };
+type Section = { key: string; title: string; emoji: string; subs: Sub[] };
 
-type Group = { title: string; items: Item[] };
-
-const initialGroups: Group[] = [
+const initial: Section[] = [
   {
-    title: "学科能力",
-    items: [
-      { icon: BookOpen, name: "语文 · 一日一句", energy: 15, done: 3, total: 5, color: "oklch(0.86 0.12 25)" },
-      { icon: Calculator, name: "数学 · 口算 10 题", energy: 15, done: 1, total: 3, color: "oklch(0.82 0.13 230)" },
-      { icon: Languages, name: "英语 · 5 单词成文", energy: 20, done: 0, total: 1, color: "oklch(0.82 0.14 150)", tag: "AI 生成" },
+    key: "学习", title: "学习", emoji: "📚",
+    subs: [
+      {
+        title: "学科能力",
+        items: [
+          { icon: BookOpen, name: "语文 · 5 单词成文", energy: 18, done: 0, total: 1, color: "oklch(0.86 0.12 25)", tag: "AI" },
+          { icon: Scroll, name: "古诗文 · 每日一诵", energy: 12, done: 1, total: 1, color: "oklch(0.8 0.13 60)" },
+          { icon: Calculator, name: "数学 · 754 思维", energy: 18, done: 1, total: 3, color: "oklch(0.82 0.13 230)" },
+          { icon: Languages, name: "英语 · 5 单词成文", energy: 20, done: 0, total: 1, color: "oklch(0.82 0.14 150)", tag: "AI" },
+        ],
+      },
+      {
+        title: "AI 时代核心能力",
+        items: [
+          { icon: Brain, name: "思辨 · 今天的一个为什么", energy: 20, done: 0, total: 1, color: "oklch(0.74 0.16 280)" },
+          { icon: HardHat, name: "六顶思考帽 · 角色练习", energy: 25, done: 0, total: 1, color: "oklch(0.72 0.18 35)" },
+          { icon: Focus, name: "专注 · 舒尔特方格", energy: 15, done: 1, total: 2, color: "oklch(0.78 0.16 320)" },
+        ],
+      },
     ],
   },
   {
-    title: "文化素养",
-    items: [
-      { icon: Scroll, name: "古诗文 · 每日一诵", energy: 12, done: 7, total: 7, color: "oklch(0.8 0.13 60)" },
-      { icon: Sparkles, name: "754 · 思维训练", energy: 18, done: 2, total: 3, color: "oklch(0.78 0.16 320)" },
+    key: "觉察", title: "自我觉察（当下）", emoji: "💗",
+    subs: [
+      {
+        title: "今天的我",
+        items: [
+          { icon: Heart, name: "一个收获", energy: 12, done: 0, total: 1, color: "oklch(0.74 0.16 15)" },
+          { icon: NotebookPen, name: "一个感想 · 日记", energy: 12, done: 0, total: 1, color: "oklch(0.78 0.12 145)" },
+        ],
+      },
     ],
   },
   {
-    title: "AI 时代核心能力",
-    items: [
-      { icon: Brain, name: "思辨：今天的一个为什么", energy: 20, done: 0, total: 1, color: "oklch(0.74 0.16 280)" },
-      { icon: HardHat, name: "六顶思考帽 · 角色练习", energy: 25, done: 1, total: 1, color: "oklch(0.72 0.18 35)", tag: "新" },
+    key: "遇见", title: "遇见（跨时空）", emoji: "🌌",
+    subs: [
+      {
+        title: "对话",
+        items: [
+          { icon: Clock, name: "与 6 岁的自己对话", energy: 25, done: 0, total: 1, color: "oklch(0.78 0.13 60)", tag: "历史" },
+          { icon: Rocket, name: "与 30 岁的自己对话", energy: 25, done: 0, total: 1, color: "oklch(0.72 0.16 280)", tag: "未来" },
+        ],
+      },
     ],
   },
 ];
 
 function Challenges() {
-  const [groups, setGroups] = useState(initialGroups);
+  const [sections, setSections] = useState(initial);
+  const [activeKey, setActiveKey] = useState(initial[0].key);
   const [showFireworks, setShowFireworks] = useState(false);
   const fireworksTimer = useRef<ReturnType<typeof setTimeout>>(null);
 
-  const handleCheckIn = (groupIndex: number, itemIndex: number) => {
-    setGroups((gs) => {
-      const g = gs[groupIndex];
-      const it = g.items[itemIndex];
-      if (it.done >= it.total) return gs;
-      const updated: Group[] = gs.map((grp, gi) =>
-        gi !== groupIndex
-          ? grp
-          : {
-              ...grp,
-              items: grp.items.map((item, ii) =>
-                ii !== itemIndex ? item : { ...item, done: Math.min(item.done + 1, item.total) }
-              ),
-            }
-      );
-      const newDone = updated[groupIndex].items[itemIndex].done;
-      const newPct = (newDone / it.total) * 100;
-      if (newPct === 100) {
-        setShowFireworks(true);
-        if (fireworksTimer.current) clearTimeout(fireworksTimer.current);
-        fireworksTimer.current = setTimeout(() => setShowFireworks(false), 2500);
-      }
-      return updated;
-    });
+  const handleCheckIn = (sKey: string, subIdx: number, itemIdx: number) => {
+    setSections((sects) =>
+      sects.map((sec) => {
+        if (sec.key !== sKey) return sec;
+        return {
+          ...sec,
+          subs: sec.subs.map((sub, si) =>
+            si !== subIdx
+              ? sub
+              : {
+                  ...sub,
+                  items: sub.items.map((it, ii) => {
+                    if (ii !== itemIdx) return it;
+                    if (it.done >= it.total) return it;
+                    const next = Math.min(it.done + 1, it.total);
+                    if (next === it.total) {
+                      setShowFireworks(true);
+                      if (fireworksTimer.current) clearTimeout(fireworksTimer.current);
+                      fireworksTimer.current = setTimeout(() => setShowFireworks(false), 2500);
+                    }
+                    return { ...it, done: next };
+                  }),
+                }
+          ),
+        };
+      })
+    );
   };
+
+  const active = sections.find((s) => s.key === activeKey)!;
 
   return (
     <AppShell>
@@ -75,11 +116,29 @@ function Challenges() {
         <FireworksCanvas active={showFireworks} />
         <header className="px-5 pb-3 pt-8">
           <p className="text-xs font-semibold uppercase tracking-widest text-primary">Challenges</p>
-          <h1 className="mt-1 text-3xl">学科打卡 🏆</h1>
-          <p className="mt-1 text-sm text-muted-foreground">每完成一项任务，豆豆都会闪闪发光～</p>
+          <h1 className="mt-1 text-3xl">打卡挑战 🏆</h1>
+          <p className="mt-1 text-sm text-muted-foreground">每完成一项，豆豆都会闪闪发光～</p>
         </header>
 
-        {groups.map((g, gi) => (
+        {/* Section tabs */}
+        <div className="sticky top-0 z-20 flex gap-2 overflow-x-auto bg-background/85 px-4 py-2 backdrop-blur-md">
+          {sections.map((s) => {
+            const a = s.key === activeKey;
+            return (
+              <button
+                key={s.key}
+                onClick={() => setActiveKey(s.key)}
+                className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-bold ${
+                  a ? "bg-primary text-primary-foreground" : "bg-card text-foreground/70"
+                }`}
+              >
+                {s.emoji} {s.title}
+              </button>
+            );
+          })}
+        </div>
+
+        {active.subs.map((g, gi) => (
           <section key={g.title} className="mt-2 px-4 pb-2">
             <h3 className="mb-2 px-1 text-sm font-bold text-muted-foreground">{g.title}</h3>
             <ul className="flex flex-col gap-3">
@@ -90,22 +149,31 @@ function Challenges() {
                 return (
                   <li key={it.name} className="card-pop p-4">
                     <div className="flex items-start gap-3">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: `color-mix(in oklab, ${it.color} 20%, white)` }}>
+                      <div
+                        className="flex h-12 w-12 items-center justify-center rounded-2xl"
+                        style={{ background: `color-mix(in oklab, ${it.color} 20%, white)` }}
+                      >
                         <Icon className="h-6 w-6" style={{ color: it.color }} />
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <h4 className="font-bold leading-tight">{it.name}</h4>
-                          {it.tag && <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">{it.tag}</span>}
+                          {it.tag && (
+                            <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                              {it.tag}
+                            </span>
+                          )}
                         </div>
                         <p className="mt-0.5 flex items-center gap-1 text-xs text-primary">
                           <Sparkles className="h-3 w-3" /> +{it.energy} 能量 · {it.done}/{it.total}
                         </p>
                       </div>
                       <button
-                        onClick={() => handleCheckIn(gi, ii)}
+                        onClick={() => handleCheckIn(active.key, gi, ii)}
                         disabled={finished}
-                        className={`rounded-full px-3 py-1.5 text-sm font-bold transition-all ${finished ? "bg-muted text-muted-foreground" : "bg-primary text-primary-foreground active:scale-95"}`}
+                        className={`rounded-full px-3 py-1.5 text-sm font-bold transition-all ${
+                          finished ? "bg-muted text-muted-foreground" : "bg-primary text-primary-foreground active:scale-95"
+                        }`}
                       >
                         {finished ? "已完成" : "打卡"}
                       </button>
