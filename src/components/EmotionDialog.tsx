@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { X, Sparkles } from "lucide-react";
+import { X, Sparkles, ArrowLeft, Volume2 } from "lucide-react";
 
 const emotions = [
   { e: "😊", n: "开心", c: "oklch(0.85 0.15 85)" },
@@ -13,18 +13,28 @@ const emotions = [
   { e: "🤔", n: "困惑", c: "oklch(0.78 0.1 70)" },
 ];
 
-const REWARD = 12;
+const needs = [
+  "被看见", "被理解", "被陪伴", "被肯定", "安全感", "自主选择",
+  "休息与放松", "玩耍与乐趣", "成就感", "联结与亲密", "尊重", "公平",
+];
+
+const REWARD_SKIP = 12;
+const REWARD_NEED = 30;
 const AUTO_MS = 3000;
 
+type Step = "emotion" | "ask" | "needs" | "reward";
+
 export function EmotionDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [step, setStep] = useState<Step>("emotion");
   const [picked, setPicked] = useState<string | null>(null);
-  const [done, setDone] = useState(false);
+  const [need, setNeed] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const reset = () => {
+    setStep("emotion");
     setPicked(null);
-    setDone(false);
+    setNeed(null);
     if (timer.current) clearTimeout(timer.current);
     if (closer.current) clearTimeout(closer.current);
   };
@@ -38,20 +48,36 @@ export function EmotionDialog({ open, onClose }: { open: boolean; onClose: () =>
   }, [open]);
 
   const finish = () => {
-    setDone(true);
     closer.current = setTimeout(() => {
       onClose();
-    }, 1200);
+    }, 1800);
   };
 
-  const pick = (n: string) => {
+  const pickEmotion = (n: string) => {
     setPicked(n);
-    timer.current = setTimeout(finish, AUTO_MS);
+    setStep("ask");
+  };
+
+  const skip = () => {
+    setNeed(null);
+    setStep("reward");
+    finish();
+  };
+
+  const goNeeds = () => {
+    setStep("needs");
+  };
+
+  const pickNeed = (n: string) => {
+    setNeed(n);
+    setStep("reward");
+    finish();
   };
 
   if (!open) return null;
 
-  const em = picked ? emotions.find((e) => e.n === picked)! : null;
+  const em = picked ? emotions.find((e) => e.n === picked) ?? null : null;
+  const reward = need ? REWARD_NEED : REWARD_SKIP;
 
   return (
     <div className="fixed inset-0 z-[90] flex items-end justify-center bg-black/40 p-3 sm:items-center" onClick={onClose}>
@@ -61,6 +87,7 @@ export function EmotionDialog({ open, onClose }: { open: boolean; onClose: () =>
         role="dialog"
         aria-modal="true"
       >
+        {/* header */}
         <div className="flex items-center justify-between px-5 pt-4">
           <h2 className="text-base font-bold">情绪地图</h2>
           <button onClick={onClose} aria-label="关闭" className="flex h-8 w-8 items-center justify-center rounded-full bg-card shadow-sm">
@@ -68,14 +95,15 @@ export function EmotionDialog({ open, onClose }: { open: boolean; onClose: () =>
           </button>
         </div>
 
-        {!picked && !done && (
+        {/* Step 1: pick emotion */}
+        {step === "emotion" && (
           <div className="px-5 pb-5 pt-2">
             <p className="text-center text-xs text-muted-foreground">此刻你心里浮现的是哪一种情绪？</p>
             <div className="mt-3 grid grid-cols-3 gap-2">
               {emotions.map((em) => (
                 <button
                   key={em.n}
-                  onClick={() => pick(em.n)}
+                  onClick={() => pickEmotion(em.n)}
                   className="card-pop flex flex-col items-center gap-1 py-3 transition-transform active:scale-95"
                   style={{ background: `color-mix(in oklab, ${em.c} 25%, white)` }}
                 >
@@ -87,21 +115,22 @@ export function EmotionDialog({ open, onClose }: { open: boolean; onClose: () =>
           </div>
         )}
 
-        {picked && !done && em && (
+        {/* Step 2: ask */}
+        {step === "ask" && em && (
           <div className="flex flex-col items-center px-6 pb-6 pt-2 text-center">
             <div className="text-6xl">{em.e}</div>
             <h3 className="mt-2 text-xl">这个"{picked}"背后，<br />可能是你的什么需要？</h3>
             <p className="mt-1 text-xs text-muted-foreground">看见需要，就是看见自己 💗</p>
 
-            <button className="mt-5 w-full rounded-2xl bg-primary py-3.5 text-base font-bold text-primary-foreground shadow-md">
+            <button onClick={goNeeds} className="mt-5 w-full rounded-2xl bg-primary py-3.5 text-base font-bold text-primary-foreground shadow-md">
               想去看看 ✨
             </button>
 
             <button
-              onClick={finish}
+              onClick={skip}
               className="mt-2 flex w-full items-center justify-center gap-1 rounded-2xl bg-card py-2.5 text-sm font-bold text-foreground/60 opacity-50"
             >
-              下次再说（+{REWARD} 能量）
+              下次再说（+{REWARD_SKIP} 能量）
               <span className="ml-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-black text-primary-foreground countdown-ring">
                 3
               </span>
@@ -110,12 +139,43 @@ export function EmotionDialog({ open, onClose }: { open: boolean; onClose: () =>
           </div>
         )}
 
-        {done && (
+        {/* Step 3: needs */}
+        {step === "needs" && (
+          <div className="px-5 pb-5 pt-2">
+            <button onClick={() => setStep("ask")} className="mb-2 flex items-center gap-1 text-xs font-bold text-muted-foreground">
+              <ArrowLeft className="h-3.5 w-3.5" /> 返回
+            </button>
+            <p className="text-center text-xs text-muted-foreground">轻轻选一个最贴近的需要</p>
+            <div className="mt-3 flex flex-wrap justify-center gap-2">
+              {needs.map((n) => (
+                <button
+                  key={n}
+                  onClick={() => pickNeed(n)}
+                  className="rounded-full bg-card px-4 py-2 text-sm font-bold shadow-sm transition-transform active:scale-95"
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: reward */}
+        {step === "reward" && (
           <div className="flex flex-col items-center px-6 pb-8 pt-3 text-center">
             <div className="text-6xl">🌟</div>
-            <h3 className="mt-2 text-xl">感谢你愿意停下来，<br />看一眼自己 💗</h3>
+            {need ? (
+              <>
+                <h3 className="mt-2 text-xl">看见需要，<br />就是看见自己</h3>
+                <button className="mt-3 flex items-center gap-1 rounded-full bg-card px-3 py-1.5 text-xs font-bold shadow-sm">
+                  <Volume2 className="h-4 w-4" /> 声优朗读
+                </button>
+              </>
+            ) : (
+              <h3 className="mt-2 text-xl">感谢你愿意停下来，<br />看一眼自己 💗</h3>
+            )}
             <div className="mt-4 flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-lg font-black text-primary-foreground shadow-lg">
-              <Sparkles className="h-5 w-5" /> +{REWARD} 能量
+              <Sparkles className="h-5 w-5" /> +{reward} 能量
             </div>
             <p className="mt-2 text-[11px] text-muted-foreground">已存档进情绪日历 · 即将返回主页</p>
           </div>
