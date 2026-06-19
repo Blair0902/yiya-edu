@@ -74,6 +74,8 @@ function ModeToggle({ mode, setMode, onOpenEmotion }: { mode: "student" | "paren
 }
 
 function StudentHome() {
+  const pet = usePet();
+  const palette = PET_COLORS.find((c) => c.key === pet.color) ?? PET_COLORS[0];
   const [tasks, setTasks] = useState(seed);
   const [showFireworks, setShowFireworks] = useState(false);
   const fireworksTimer = useRef<ReturnType<typeof setTimeout>>(null);
