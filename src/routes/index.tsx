@@ -34,15 +34,17 @@ const seed: Task[] = [
 
 function HomePage() {
   const [mode, setMode] = useState<"student" | "parent">("student");
+  const [emotionOpen, setEmotionOpen] = useState(false);
   return (
     <AppShell>
-      <ModeToggle mode={mode} setMode={setMode} />
+      <ModeToggle mode={mode} setMode={setMode} onOpenEmotion={() => setEmotionOpen(true)} />
       {mode === "student" ? <StudentHome /> : <ParentHome />}
+      <EmotionDialog open={emotionOpen} onClose={() => setEmotionOpen(false)} />
     </AppShell>
   );
 }
 
-function ModeToggle({ mode, setMode }: { mode: "student" | "parent"; setMode: (m: "student" | "parent") => void }) {
+function ModeToggle({ mode, setMode, onOpenEmotion }: { mode: "student" | "parent"; setMode: (m: "student" | "parent") => void; onOpenEmotion: () => void }) {
   return (
     <div className="sticky top-0 z-40 flex items-center justify-between gap-3 bg-background/85 px-4 py-2.5 backdrop-blur-md">
       <button aria-label="设置" className="flex h-9 w-9 items-center justify-center rounded-full bg-card shadow-sm">
