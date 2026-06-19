@@ -6,6 +6,7 @@ import { usePet, PET_COLORS } from "@/lib/pet-store";
 import sceneImg from "@/assets/scene.jpg";
 import {
   Sparkles, Check, Settings, Share2, Smile, Volume2, MessageCircleHeart, Sparkle, Flame, Heart, Send,
+  CalendarDays, Clock, Rocket, NotebookPen,
 } from "lucide-react";
 import { useState, useRef } from "react";
 
@@ -22,13 +23,11 @@ export const Route = createFileRoute("/")({
 type Task = { id: number; emoji: string; title: string; energy: number; done: boolean; cat: string };
 
 const seed: Task[] = [
-  { id: 1, emoji: "🌅", title: "按时起床", energy: 5, done: true, cat: "健房" },
-  { id: 2, emoji: "🪥", title: "认真刷牙", energy: 5, done: true, cat: "健房" },
+  { id: 1, emoji: "🌅", title: "按时起床", energy: 5, done: false, cat: "健房" },
+  { id: 2, emoji: "🪥", title: "认真刷牙", energy: 5, done: false, cat: "健房" },
   { id: 3, emoji: "💧", title: "喝一杯水", energy: 5, done: false, cat: "健房" },
   { id: 4, emoji: "🌬️", title: "三个深呼吸", energy: 8, done: false, cat: "健房" },
   { id: 5, emoji: "🧘", title: "三个拉伸动作", energy: 8, done: false, cat: "健房" },
-  { id: 6, emoji: "🌟", title: "今天的一个收获", energy: 12, done: false, cat: "自我觉察" },
-  { id: 7, emoji: "💝", title: "今天的一个感恩", energy: 12, done: false, cat: "自我觉察" },
 ];
 
 function HomePage() {
@@ -46,9 +45,9 @@ function HomePage() {
 function ModeToggle({ mode, setMode, onOpenEmotion }: { mode: "student" | "parent"; setMode: (m: "student" | "parent") => void; onOpenEmotion: () => void }) {
   return (
     <div className="sticky top-0 z-40 flex items-center justify-between gap-3 bg-background/85 px-4 py-2.5 backdrop-blur-md">
-      <button aria-label="设置" className="flex h-9 w-9 items-center justify-center rounded-full bg-card shadow-sm">
+      <Link to="/settings" aria-label="设置" className="flex h-9 w-9 items-center justify-center rounded-full bg-card shadow-sm">
         <Settings className="h-4 w-4 text-foreground/70" />
-      </button>
+      </Link>
       <div className="flex rounded-full bg-card p-0.5 shadow-sm">
         {[
           { k: "student", label: "学生端" },
@@ -65,9 +64,14 @@ function ModeToggle({ mode, setMode, onOpenEmotion }: { mode: "student" | "paren
           </button>
         ))}
       </div>
-      <button onClick={onOpenEmotion} aria-label="情绪标签" className="flex h-9 w-9 items-center justify-center rounded-full bg-card shadow-sm">
-        <Smile className="h-4 w-4 text-berry" />
-      </button>
+      <div className="flex items-center gap-2">
+        <Link to="/journal" aria-label="日签" className="flex h-9 w-9 items-center justify-center rounded-full bg-card shadow-sm">
+          <CalendarDays className="h-4 w-4 text-primary" />
+        </Link>
+        <button onClick={onOpenEmotion} aria-label="情绪标签" className="flex h-9 w-9 items-center justify-center rounded-full bg-card shadow-sm">
+          <Smile className="h-4 w-4 text-berry" />
+        </button>
+      </div>
     </div>
   );
 }
@@ -76,24 +80,24 @@ function StudentHome() {
   const pet = usePet();
   const palette = PET_COLORS.find((c) => c.key === pet.color) ?? PET_COLORS[0];
   const [tasks, setTasks] = useState(seed);
+  const [exploding, setExploding] = useState<Set<number>>(new Set());
   const [showFireworks, setShowFireworks] = useState(false);
   const fireworksTimer = useRef<ReturnType<typeof setTimeout>>(null);
-  const done = tasks.filter((t) => t.done).length;
+  const visible = tasks.filter((t) => !t.done);
+  const totalToday = seed.length;
+  const done = totalToday - visible.length;
   const energy = tasks.filter((t) => t.done).reduce((s, t) => s + t.energy, 0);
 
-  const toggle = (id: number) => {
-    setTasks((ts) => {
-      const target = ts.find((t) => t.id === id);
-      if (target && !target.done) {
-        setShowFireworks(true);
-        if (fireworksTimer.current) clearTimeout(fireworksTimer.current);
-        fireworksTimer.current = setTimeout(() => setShowFireworks(false), 2500);
-      }
-      return ts.map((t) => (t.id === id ? { ...t, done: !t.done } : t));
-    });
+  const complete = (id: number) => {
+    setShowFireworks(true);
+    if (fireworksTimer.current) clearTimeout(fireworksTimer.current);
+    fireworksTimer.current = setTimeout(() => setShowFireworks(false), 2200);
+    setExploding((s) => new Set(s).add(id));
+    setTimeout(() => {
+      setTasks((ts) => ts.map((t) => (t.id === id ? { ...t, done: true } : t)));
+      setExploding((s) => { const n = new Set(s); n.delete(id); return n; });
+    }, 500);
   };
-
-  const groups = ["健房", "自我觉察"];
 
   return (
     <div className="relative">
@@ -106,24 +110,19 @@ function StudentHome() {
         <button className="pill flex items-center gap-1 bg-card"><Share2 className="h-3.5 w-3.5 text-leaf" />分享</button>
       </div>
 
-      {/* Pet scene */}
+      {/* Pet scene — no yellow frame, cuter chick */}
       <div
         className="relative mt-2 h-64 w-full overflow-hidden"
         style={{ backgroundImage: `url(${sceneImg})`, backgroundSize: "cover", backgroundPosition: "center bottom" }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
-        <div
-          className="absolute bottom-2 left-1/2 flex h-44 w-44 -translate-x-1/2 items-center justify-center rounded-full text-8xl shadow-xl"
-          style={{ background: palette.bg }}
-        >
-          {palette.emoji}
-        </div>
+        <CuteChick emoji={palette.emoji} />
         <div className="absolute bottom-4 right-3 rounded-2xl bg-card/90 px-3 py-1.5 text-xs font-bold shadow-sm">
           {pet.name} · Lv.4{pet.traits.length ? ` · ${pet.traits[0]}` : ""}
         </div>
       </div>
 
-      {/* Chat 聊天区 (学生：跟自己说好听的话 / 探索 / 概略) */}
+      {/* Chat 聊天区 */}
       <section className="px-4">
         <div className="card-pop relative -mt-6 p-4">
           <div className="flex items-start gap-3">
@@ -140,9 +139,6 @@ function StudentHome() {
                 <Link to="/weiyan" className="flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">
                   <Sparkle className="h-3.5 w-3.5" /> 微言 · 探索
                 </Link>
-                <button className="flex items-center gap-1 rounded-full bg-card px-3 py-1 text-xs font-bold text-foreground/70 ring-1 ring-border">
-                  概略 · AI 剖析
-                </button>
               </div>
             </div>
           </div>
@@ -152,52 +148,123 @@ function StudentHome() {
       {/* Daily progress */}
       <section className="mt-4 px-4">
         <div className="flex items-end justify-between">
-          <h2 className="text-xl">今日打卡 · {done}/{tasks.length}</h2>
-          <span className="text-xs text-muted-foreground">零压力启动 ✨</span>
+          <h2 className="text-xl">今日打卡 · {done}/{totalToday}</h2>
+          <Link to="/journal" className="text-xs font-bold text-primary">查看日签 →</Link>
         </div>
         <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-secondary">
-          <div className="h-full rounded-full transition-all" style={{ width: `${(done / tasks.length) * 100}%`, background: "var(--gradient-sun)" }} />
+          <div className="h-full rounded-full transition-all" style={{ width: `${(done / totalToday) * 100}%`, background: "var(--gradient-sun)" }} />
         </div>
       </section>
 
-      {groups.map((g) => (
-        <section key={g} className="mt-4 px-4">
-          <h3 className="mb-2 px-1 text-sm font-bold text-muted-foreground">
-            {g === "健房" ? "🧘 健房 · 基础自我照亮" : "💗 自我觉察"}
-          </h3>
+      <section className="mt-4 px-4">
+        <h3 className="mb-2 px-1 text-sm font-bold text-muted-foreground">🧘 健房 · 基础自我照亮</h3>
+        {visible.length === 0 ? (
+          <div className="card-pop p-4 text-center text-sm text-muted-foreground">
+            今天的习惯都完成啦 🎉
+          </div>
+        ) : (
           <ul className="flex flex-col gap-2">
-            {tasks.filter((t) => t.cat === g).map((t) => (
-              <li key={t.id} className="card-pop flex items-center gap-3 p-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-secondary text-xl">{t.emoji}</div>
-                <div className="flex-1">
-                  <p className={`font-bold ${t.done ? "text-muted-foreground line-through" : ""}`}>{t.title}</p>
-                  <span className="flex items-center gap-0.5 text-xs text-primary">
-                    <Sparkles className="h-3 w-3" /> +{t.energy} 能量
-                  </span>
-                </div>
-                <button
-                  onClick={() => toggle(t.id)}
-                  aria-label="完成"
-                  className={`flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all ${
-                    t.done ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-transparent"
+            {visible.map((t) => {
+              const isBursting = exploding.has(t.id);
+              return (
+                <li
+                  key={t.id}
+                  className={`card-pop flex items-center gap-3 p-3 transition-all duration-500 ${
+                    isBursting ? "scale-125 opacity-0 blur-sm" : ""
                   }`}
                 >
-                  <Check className="h-4 w-4" />
-                </button>
-              </li>
-            ))}
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-secondary text-xl">{t.emoji}</div>
+                  <div className="flex-1">
+                    <p className="font-bold">{t.title}</p>
+                    <span className="flex items-center gap-0.5 text-xs text-primary">
+                      <Sparkles className="h-3 w-3" /> +{t.energy} 能量
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => complete(t.id)}
+                    disabled={isBursting}
+                    aria-label="完成"
+                    className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-border bg-card text-transparent active:scale-90 active:border-primary active:bg-primary active:text-primary-foreground"
+                  >
+                    <Check className="h-4 w-4" />
+                  </button>
+                </li>
+              );
+            })}
           </ul>
-        </section>
-      ))}
+        )}
+      </section>
 
-      <div className="mt-4 px-4">
-        <Link to="/challenges" className="card-pop flex items-center justify-between bg-gradient-to-r from-[oklch(0.88_0.1_85)] to-[oklch(0.86_0.13_60)] p-4">
-          <div>
-            <p className="text-xs font-bold uppercase text-primary">学习 · 自我觉察 · 遇见</p>
-            <p className="text-sm font-bold">学科 + AI 核心能力 + 跨时空对话</p>
-          </div>
-          <span className="rounded-full bg-card px-3 py-1.5 text-sm font-bold">去挑战 →</span>
-        </Link>
+      {/* 自我觉察 — kept on home */}
+      <section className="mt-5 px-4">
+        <h3 className="mb-2 px-1 text-sm font-bold text-muted-foreground">💗 自我觉察 · 今天的我</h3>
+        <ul className="flex flex-col gap-2">
+          <li className="card-pop flex items-center gap-3 p-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[oklch(0.92_0.06_15)] text-xl">🌟</div>
+            <div className="flex-1">
+              <p className="font-bold">今天的一个收获</p>
+              <p className="text-xs text-muted-foreground">一句话记录今天看见的自己</p>
+            </div>
+            <button className="rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground">写下</button>
+          </li>
+          <li className="card-pop flex items-center gap-3 p-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[oklch(0.92_0.06_145)] text-xl">
+              <NotebookPen className="h-5 w-5 text-leaf" />
+            </div>
+            <div className="flex-1">
+              <p className="font-bold">今天的一个感想</p>
+              <p className="text-xs text-muted-foreground">日记 · 随心写</p>
+            </div>
+            <button className="rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground">写下</button>
+          </li>
+        </ul>
+      </section>
+
+      {/* 遇见 — kept on home */}
+      <section className="mt-5 px-4">
+        <h3 className="mb-2 px-1 text-sm font-bold text-muted-foreground">🌌 遇见 · 跨时空对话</h3>
+        <ul className="flex flex-col gap-2">
+          <li className="card-pop flex items-center gap-3 p-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[oklch(0.92_0.07_60)]">
+              <Clock className="h-5 w-5 text-[oklch(0.65_0.16_60)]" />
+            </div>
+            <div className="flex-1">
+              <p className="font-bold">与 6 岁的自己对话</p>
+              <p className="text-xs text-muted-foreground">回到那个小小的你</p>
+            </div>
+            <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold">历史</span>
+          </li>
+          <li className="card-pop flex items-center gap-3 p-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[oklch(0.9_0.08_280)]">
+              <Rocket className="h-5 w-5 text-[oklch(0.6_0.18_280)]" />
+            </div>
+            <div className="flex-1">
+              <p className="font-bold">与 30 岁的自己对话</p>
+              <p className="text-xs text-muted-foreground">未来的你想说什么</p>
+            </div>
+            <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold">未来</span>
+          </li>
+        </ul>
+      </section>
+    </div>
+  );
+}
+
+function CuteChick({ emoji }: { emoji: string }) {
+  return (
+    <div className="absolute bottom-3 left-1/2 -translate-x-1/2">
+      <div className="relative">
+        <div
+          className="absolute -inset-6 rounded-full blur-2xl"
+          style={{ background: "radial-gradient(closest-side, oklch(0.95 0.15 85 / 0.55), transparent)" }}
+        />
+        <div className="relative text-[7.5rem] drop-shadow-[0_8px_18px_rgba(220,140,40,0.35)] animate-[bounce_2.6s_ease-in-out_infinite]">
+          {emoji}
+        </div>
+        <div
+          className="mx-auto mt-1 h-2 w-24 rounded-full"
+          style={{ background: "radial-gradient(closest-side, oklch(0.4 0.05 40 / 0.35), transparent)" }}
+        />
       </div>
     </div>
   );
@@ -206,7 +273,6 @@ function StudentHome() {
 function ParentHome() {
   return (
     <div className="px-4 pt-2">
-      {/* 看见自己 */}
       <section className="card-pop mt-2 p-4">
         <div className="flex items-center gap-2">
           <Heart className="h-4 w-4 text-berry" />
@@ -224,10 +290,8 @@ function ParentHome() {
             <Share2 className="h-3.5 w-3.5" /> 转发日签
           </button>
         </div>
-        <p className="mt-2 text-[11px] text-muted-foreground">微信 · 朋友圈 · 小红书 · 抖音 · 微博</p>
       </section>
 
-      {/* 看见孩子 */}
       <section className="mt-3">
         <div className="mb-2 flex items-center gap-2 px-1">
           <Sparkle className="h-4 w-4 text-primary" />
@@ -243,18 +307,9 @@ function ParentHome() {
           </div>
         </div>
 
-        <div className="card-pop mb-2 p-4">
-          <p className="text-xs font-bold text-muted-foreground">概略 · 释放负能量</p>
-          <p className="mt-1 text-sm leading-relaxed text-foreground/80">
-            最近一周，孩子情绪关键词：<span className="font-bold text-berry">紧张</span> · <span className="font-bold text-primary">期待</span> · <span className="font-bold text-leaf">小自豪</span>
-          </p>
-          <button className="mt-2 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">查看 AI 沟通建议</button>
-        </div>
-
-        {/* 一件好事 */}
         <div className="card-pop bg-gradient-to-br from-[oklch(0.93_0.08_145)] to-[oklch(0.96_0.04_80)] p-4">
           <p className="text-xs font-bold uppercase tracking-widest text-leaf">一件好事</p>
-          <p className="mt-1 text-sm text-foreground/70">记录今天孩子的一个小小进步，把注意力放在成长上</p>
+          <p className="mt-1 text-sm text-foreground/70">记录今天孩子的一个小小进步</p>
           <div className="mt-3 flex items-center gap-2 rounded-2xl bg-card p-2 ring-1 ring-border">
             <input
               type="text"
@@ -268,7 +323,6 @@ function ParentHome() {
         </div>
       </section>
 
-      {/* 数据看板入口 */}
       <section className="mt-3">
         <Link to="/me" className="card-pop flex items-center justify-between bg-gradient-to-r from-[oklch(0.88_0.1_230)] to-[oklch(0.9_0.07_280)] p-4">
           <div>
