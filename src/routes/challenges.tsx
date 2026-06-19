@@ -3,7 +3,7 @@ import { AppShell } from "@/components/AppShell";
 import { FireworksCanvas } from "@/components/Fireworks";
 import {
   BookOpen, Calculator, Languages, Scroll, Brain, HardHat, Sparkles,
-  Focus, Heart, NotebookPen, Clock, Rocket,
+  Focus, Heart, NotebookPen, Clock, Rocket, Gift, X,
 } from "lucide-react";
 import { useState, useRef } from "react";
 
@@ -73,39 +73,68 @@ const initial: Section[] = [
   },
 ];
 
+type Completed = { name: string; energy: number; color: string;
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }> };
+
 function Challenges() {
   const [sections, setSections] = useState(initial);
   const [activeKey, setActiveKey] = useState(initial[0].key);
   const [showFireworks, setShowFireworks] = useState(false);
+  const [exploding, setExploding] = useState<Set<string>>(new Set());
+  const [completed, setCompleted] = useState<Completed[]>([]);
+  const [showBox, setShowBox] = useState(false);
   const fireworksTimer = useRef<ReturnType<typeof setTimeout>>(null);
 
+  const removeItem = (name: string, doneItem: Completed) => {
+    setSections((sects) =>
+      sects.map((sec) => ({
+        ...sec,
+        subs: sec.subs.map((sub) => ({
+          ...sub,
+          items: sub.items.filter((it) => it.name !== name),
+        })),
+      }))
+    );
+    setCompleted((c) => [doneItem, ...c]);
+    setExploding((s) => {
+      const n = new Set(s); n.delete(name); return n;
+    });
+  };
+
   const handleCheckIn = (sKey: string, subIdx: number, itemIdx: number) => {
+    let burstItem: Completed | null = null;
+    let burstName: string | null = null;
     setSections((sects) =>
       sects.map((sec) => {
         if (sec.key !== sKey) return sec;
         return {
           ...sec,
           subs: sec.subs.map((sub, si) =>
-            si !== subIdx
-              ? sub
-              : {
-                  ...sub,
-                  items: sub.items.map((it, ii) => {
-                    if (ii !== itemIdx) return it;
-                    if (it.done >= it.total) return it;
-                    const next = Math.min(it.done + 1, it.total);
-                    if (next === it.total) {
-                      setShowFireworks(true);
-                      if (fireworksTimer.current) clearTimeout(fireworksTimer.current);
-                      fireworksTimer.current = setTimeout(() => setShowFireworks(false), 2500);
-                    }
-                    return { ...it, done: next };
-                  }),
+            si !== subIdx ? sub : {
+              ...sub,
+              items: sub.items.map((it, ii) => {
+                if (ii !== itemIdx) return it;
+                if (it.done >= it.total) return it;
+                const next = Math.min(it.done + 1, it.total);
+                if (next === it.total) {
+                  burstName = it.name;
+                  burstItem = { name: it.name, energy: it.energy, color: it.color, icon: it.icon };
                 }
+                return { ...it, done: next };
+              }),
+            }
           ),
         };
       })
     );
+    if (burstName && burstItem) {
+      setShowFireworks(true);
+      if (fireworksTimer.current) clearTimeout(fireworksTimer.current);
+      fireworksTimer.current = setTimeout(() => setShowFireworks(false), 2500);
+      const name = burstName; const item = burstItem;
+      setExploding((s) => new Set(s).add(name));
+      setTimeout(() => removeItem(name, item), 550);
+    }
   };
 
   const active = sections.find((s) => s.key === activeKey)!;
@@ -118,6 +147,21 @@ function Challenges() {
           <p className="text-xs font-semibold uppercase tracking-widest text-primary">Challenges</p>
           <h1 className="mt-1 text-3xl">打卡挑战 🏆</h1>
           <p className="mt-1 text-sm text-muted-foreground">每完成一项，豆豆都会闪闪发光～</p>
+
+          <button
+            onClick={() => setShowBox(true)}
+            className="mt-3 inline-flex items-center gap-2 rounded-full bg-card px-3 py-1.5 text-sm font-bold shadow-sm active:scale-95"
+          >
+            <span>今日已打卡 {completed.length}</span>
+            <span className="relative flex h-7 w-7 items-center justify-center rounded-full bg-primary/15">
+              <Gift className="h-4 w-4 text-primary" />
+              {completed.length > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                  {completed.length}
+                </span>
+              )}
+            </span>
+          </button>
         </header>
 
         {/* Section tabs */}
@@ -141,52 +185,109 @@ function Challenges() {
         {active.subs.map((g, gi) => (
           <section key={g.title} className="mt-2 px-4 pb-2">
             <h3 className="mb-2 px-1 text-sm font-bold text-muted-foreground">{g.title}</h3>
-            <ul className="flex flex-col gap-3">
-              {g.items.map((it, ii) => {
-                const pct = (it.done / it.total) * 100;
-                const Icon = it.icon;
-                const finished = pct === 100;
-                return (
-                  <li key={it.name} className="card-pop p-4">
-                    <div className="flex items-start gap-3">
-                      <div
-                        className="flex h-12 w-12 items-center justify-center rounded-2xl"
-                        style={{ background: `color-mix(in oklab, ${it.color} 20%, white)` }}
-                      >
-                        <Icon className="h-6 w-6" style={{ color: it.color }} />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-bold leading-tight">{it.name}</h4>
-                          {it.tag && (
-                            <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
-                              {it.tag}
-                            </span>
-                          )}
+            {g.items.length === 0 ? (
+              <p className="px-1 text-xs text-muted-foreground">全部完成啦 🎉</p>
+            ) : (
+              <ul className="flex flex-col gap-3">
+                {g.items.map((it, ii) => {
+                  const pct = (it.done / it.total) * 100;
+                  const Icon = it.icon;
+                  const finished = pct === 100;
+                  const isBursting = exploding.has(it.name);
+                  return (
+                    <li
+                      key={it.name}
+                      className={`card-pop p-4 transition-all duration-500 ${
+                        isBursting ? "scale-125 opacity-0 blur-sm" : ""
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div
+                          className="flex h-12 w-12 items-center justify-center rounded-2xl"
+                          style={{ background: `color-mix(in oklab, ${it.color} 20%, white)` }}
+                        >
+                          <Icon className="h-6 w-6" style={{ color: it.color }} />
                         </div>
-                        <p className="mt-0.5 flex items-center gap-1 text-xs text-primary">
-                          <Sparkles className="h-3 w-3" /> +{it.energy} 能量 · {it.done}/{it.total}
-                        </p>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-bold leading-tight">{it.name}</h4>
+                            {it.tag && (
+                              <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                                {it.tag}
+                              </span>
+                            )}
+                          </div>
+                          <p className="mt-0.5 flex items-center gap-1 text-xs text-primary">
+                            <Sparkles className="h-3 w-3" /> +{it.energy} 能量 · {it.done}/{it.total}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => handleCheckIn(active.key, gi, ii)}
+                          disabled={finished || isBursting}
+                          className={`rounded-full px-3 py-1.5 text-sm font-bold transition-all ${
+                            finished ? "bg-muted text-muted-foreground" : "bg-primary text-primary-foreground active:scale-95"
+                          }`}
+                        >
+                          {finished ? "已完成" : "打卡"}
+                        </button>
                       </div>
-                      <button
-                        onClick={() => handleCheckIn(active.key, gi, ii)}
-                        disabled={finished}
-                        className={`rounded-full px-3 py-1.5 text-sm font-bold transition-all ${
-                          finished ? "bg-muted text-muted-foreground" : "bg-primary text-primary-foreground active:scale-95"
-                        }`}
-                      >
-                        {finished ? "已完成" : "打卡"}
-                      </button>
-                    </div>
-                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-secondary">
-                      <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: it.color }} />
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+                      <div className="mt-3 h-2 overflow-hidden rounded-full bg-secondary">
+                        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: it.color }} />
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </section>
         ))}
+
+        {showBox && (
+          <div
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 animate-fade-in"
+            onClick={() => setShowBox(false)}
+          >
+            <div
+              className="w-full max-w-md rounded-t-3xl bg-background p-5 pb-8 animate-slide-in-right"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-lg font-bold flex items-center gap-2">
+                  <Gift className="h-5 w-5 text-primary" /> 今日已打卡 ({completed.length})
+                </h3>
+                <button onClick={() => setShowBox(false)} className="rounded-full p-1 active:scale-90">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              {completed.length === 0 ? (
+                <p className="py-8 text-center text-sm text-muted-foreground">还没有完成的习惯，去打卡吧～</p>
+              ) : (
+                <ul className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto">
+                  {completed.map((c) => {
+                    const Icon = c.icon;
+                    return (
+                      <li key={c.name} className="flex items-center gap-3 rounded-2xl bg-card p-3">
+                        <div
+                          className="flex h-10 w-10 items-center justify-center rounded-xl"
+                          style={{ background: `color-mix(in oklab, ${c.color} 20%, white)` }}
+                        >
+                          <Icon className="h-5 w-5" style={{ color: c.color }} />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-bold text-sm leading-tight">{c.name}</p>
+                          <p className="mt-0.5 flex items-center gap-1 text-xs text-primary">
+                            <Sparkles className="h-3 w-3" /> +{c.energy} 能量
+                          </p>
+                        </div>
+                        <span className="text-lg">✅</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </AppShell>
   );
