@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { FireworksCanvas } from "@/components/Fireworks";
-import petImg from "@/assets/pet.png";
+import { EmotionDialog } from "@/components/EmotionDialog";
+import { usePet, PET_COLORS } from "@/lib/pet-store";
 import sceneImg from "@/assets/scene.jpg";
 import {
   Sparkles, Check, Settings, Share2, Smile, Volume2, MessageCircleHeart, Sparkle, Flame, Heart, Send,
@@ -32,15 +33,17 @@ const seed: Task[] = [
 
 function HomePage() {
   const [mode, setMode] = useState<"student" | "parent">("student");
+  const [emotionOpen, setEmotionOpen] = useState(false);
   return (
     <AppShell>
-      <ModeToggle mode={mode} setMode={setMode} />
+      <ModeToggle mode={mode} setMode={setMode} onOpenEmotion={() => setEmotionOpen(true)} />
       {mode === "student" ? <StudentHome /> : <ParentHome />}
+      <EmotionDialog open={emotionOpen} onClose={() => setEmotionOpen(false)} />
     </AppShell>
   );
 }
 
-function ModeToggle({ mode, setMode }: { mode: "student" | "parent"; setMode: (m: "student" | "parent") => void }) {
+function ModeToggle({ mode, setMode, onOpenEmotion }: { mode: "student" | "parent"; setMode: (m: "student" | "parent") => void; onOpenEmotion: () => void }) {
   return (
     <div className="sticky top-0 z-40 flex items-center justify-between gap-3 bg-background/85 px-4 py-2.5 backdrop-blur-md">
       <button aria-label="设置" className="flex h-9 w-9 items-center justify-center rounded-full bg-card shadow-sm">
@@ -62,14 +65,16 @@ function ModeToggle({ mode, setMode }: { mode: "student" | "parent"; setMode: (m
           </button>
         ))}
       </div>
-      <Link to="/emotion" aria-label="情绪标签" className="flex h-9 w-9 items-center justify-center rounded-full bg-card shadow-sm">
+      <button onClick={onOpenEmotion} aria-label="情绪标签" className="flex h-9 w-9 items-center justify-center rounded-full bg-card shadow-sm">
         <Smile className="h-4 w-4 text-berry" />
-      </Link>
+      </button>
     </div>
   );
 }
 
 function StudentHome() {
+  const pet = usePet();
+  const palette = PET_COLORS.find((c) => c.key === pet.color) ?? PET_COLORS[0];
   const [tasks, setTasks] = useState(seed);
   const [showFireworks, setShowFireworks] = useState(false);
   const fireworksTimer = useRef<ReturnType<typeof setTimeout>>(null);
@@ -107,8 +112,15 @@ function StudentHome() {
         style={{ backgroundImage: `url(${sceneImg})`, backgroundSize: "cover", backgroundPosition: "center bottom" }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
-        <img src={petImg} alt="宠物豆豆" width={768} height={768} className="absolute bottom-0 left-1/2 h-52 w-52 -translate-x-1/2 drop-shadow-xl" />
-        <div className="absolute bottom-4 right-3 rounded-2xl bg-card/90 px-3 py-1.5 text-xs font-bold shadow-sm">豆豆 · Lv.4</div>
+        <div
+          className="absolute bottom-2 left-1/2 flex h-44 w-44 -translate-x-1/2 items-center justify-center rounded-full text-8xl shadow-xl"
+          style={{ background: palette.bg }}
+        >
+          {palette.emoji}
+        </div>
+        <div className="absolute bottom-4 right-3 rounded-2xl bg-card/90 px-3 py-1.5 text-xs font-bold shadow-sm">
+          {pet.name} · Lv.4{pet.traits.length ? ` · ${pet.traits[0]}` : ""}
+        </div>
       </div>
 
       {/* Chat 聊天区 (学生：跟自己说好听的话 / 探索 / 概略) */}

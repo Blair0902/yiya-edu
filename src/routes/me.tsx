@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
-import { Settings, Flame, Sparkles, Calendar, Heart, ChevronRight, BookOpen, Trophy, Bell } from "lucide-react";
+import { Settings, Flame, Sparkles, Calendar, Heart, ChevronRight, BookOpen, Trophy, Bell, PawPrint } from "lucide-react";
+import { resetPet, usePet, PET_COLORS } from "@/lib/pet-store";
 
 export const Route = createFileRoute("/me")({
   head: () => ({
@@ -89,6 +90,8 @@ function Me() {
         </ul>
       </section>
 
+      <PetSettings />
+
       <section className="mt-4 px-4">
         <div className="card-pop bg-gradient-to-r from-[oklch(0.88_0.1_230)] to-[oklch(0.9_0.07_280)] p-4">
           <p className="text-xs font-bold uppercase text-primary">家长端入口</p>
@@ -97,5 +100,36 @@ function Me() {
         </div>
       </section>
     </AppShell>
+  );
+}
+
+function PetSettings() {
+  const pet = usePet();
+  const palette = PET_COLORS.find((c) => c.key === pet.color) ?? PET_COLORS[0];
+  return (
+    <section className="mt-4 px-4">
+      <div className="card-pop flex items-center gap-3 p-4">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl text-3xl" style={{ background: palette.bg }}>
+          {palette.emoji}
+        </div>
+        <div className="flex-1">
+          <p className="flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-primary">
+            <PawPrint className="h-3.5 w-3.5" /> 我的宠物
+          </p>
+          <p className="mt-0.5 font-bold">{pet.name} · {palette.label}</p>
+          <p className="text-[11px] text-muted-foreground">
+            {pet.traits.length ? pet.traits.join(" · ") : "还没有性格标签"}
+          </p>
+        </div>
+        <button
+          onClick={() => {
+            if (confirm("重新自定义宠物名字和外观？")) resetPet();
+          }}
+          className="rounded-full bg-secondary px-3 py-1.5 text-xs font-bold"
+        >
+          重新自定义
+        </button>
+      </div>
+    </section>
   );
 }
