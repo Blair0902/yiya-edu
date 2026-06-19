@@ -14,62 +14,29 @@ import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as PetRouteImport } from './routes/pet'
 import { Route as MeRouteImport } from './routes/me'
+import { Route as JournalRouteImport } from './routes/journal'
 import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as EmotionRouteImport } from './routes/emotion'
 import { Route as ChallengesRouteImport } from './routes/challenges'
 import { Route as IndexRouteImport } from './routes/index'
 
-const WeiyanRoute = WeiyanRouteImport.update({
-  id: '/weiyan',
-  path: '/weiyan',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ShopRoute = ShopRouteImport.update({
-  id: '/shop',
-  path: '/shop',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PetRoute = PetRouteImport.update({
-  id: '/pet',
-  path: '/pet',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MeRoute = MeRouteImport.update({
-  id: '/me',
-  path: '/me',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FriendsRoute = FriendsRouteImport.update({
-  id: '/friends',
-  path: '/friends',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EmotionRoute = EmotionRouteImport.update({
-  id: '/emotion',
-  path: '/emotion',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChallengesRoute = ChallengesRouteImport.update({
-  id: '/challenges',
-  path: '/challenges',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const WeiyanRoute = WeiyanRouteImport.update({ id: '/weiyan', path: '/weiyan', getParentRoute: () => rootRouteImport } as any)
+const ShopRoute = ShopRouteImport.update({ id: '/shop', path: '/shop', getParentRoute: () => rootRouteImport } as any)
+const SettingsRoute = SettingsRouteImport.update({ id: '/settings', path: '/settings', getParentRoute: () => rootRouteImport } as any)
+const PetRoute = PetRouteImport.update({ id: '/pet', path: '/pet', getParentRoute: () => rootRouteImport } as any)
+const MeRoute = MeRouteImport.update({ id: '/me', path: '/me', getParentRoute: () => rootRouteImport } as any)
+const JournalRoute = JournalRouteImport.update({ id: '/journal', path: '/journal', getParentRoute: () => rootRouteImport } as any)
+const FriendsRoute = FriendsRouteImport.update({ id: '/friends', path: '/friends', getParentRoute: () => rootRouteImport } as any)
+const EmotionRoute = EmotionRouteImport.update({ id: '/emotion', path: '/emotion', getParentRoute: () => rootRouteImport } as any)
+const ChallengesRoute = ChallengesRouteImport.update({ id: '/challenges', path: '/challenges', getParentRoute: () => rootRouteImport } as any)
+const IndexRoute = IndexRouteImport.update({ id: '/', path: '/', getParentRoute: () => rootRouteImport } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/challenges': typeof ChallengesRoute
   '/emotion': typeof EmotionRoute
   '/friends': typeof FriendsRoute
+  '/journal': typeof JournalRoute
   '/me': typeof MeRoute
   '/pet': typeof PetRoute
   '/settings': typeof SettingsRoute
@@ -81,6 +48,7 @@ export interface FileRoutesByTo {
   '/challenges': typeof ChallengesRoute
   '/emotion': typeof EmotionRoute
   '/friends': typeof FriendsRoute
+  '/journal': typeof JournalRoute
   '/me': typeof MeRoute
   '/pet': typeof PetRoute
   '/settings': typeof SettingsRoute
@@ -93,6 +61,7 @@ export interface FileRoutesById {
   '/challenges': typeof ChallengesRoute
   '/emotion': typeof EmotionRoute
   '/friends': typeof FriendsRoute
+  '/journal': typeof JournalRoute
   '/me': typeof MeRoute
   '/pet': typeof PetRoute
   '/settings': typeof SettingsRoute
@@ -101,38 +70,10 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/challenges'
-    | '/emotion'
-    | '/friends'
-    | '/me'
-    | '/pet'
-    | '/settings'
-    | '/shop'
-    | '/weiyan'
+  fullPaths: '/' | '/challenges' | '/emotion' | '/friends' | '/journal' | '/me' | '/pet' | '/settings' | '/shop' | '/weiyan'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/challenges'
-    | '/emotion'
-    | '/friends'
-    | '/me'
-    | '/pet'
-    | '/settings'
-    | '/shop'
-    | '/weiyan'
-  id:
-    | '__root__'
-    | '/'
-    | '/challenges'
-    | '/emotion'
-    | '/friends'
-    | '/me'
-    | '/pet'
-    | '/settings'
-    | '/shop'
-    | '/weiyan'
+  to: '/' | '/challenges' | '/emotion' | '/friends' | '/journal' | '/me' | '/pet' | '/settings' | '/shop' | '/weiyan'
+  id: '__root__' | '/' | '/challenges' | '/emotion' | '/friends' | '/journal' | '/me' | '/pet' | '/settings' | '/shop' | '/weiyan'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -140,6 +81,7 @@ export interface RootRouteChildren {
   ChallengesRoute: typeof ChallengesRoute
   EmotionRoute: typeof EmotionRoute
   FriendsRoute: typeof FriendsRoute
+  JournalRoute: typeof JournalRoute
   MeRoute: typeof MeRoute
   PetRoute: typeof PetRoute
   SettingsRoute: typeof SettingsRoute
@@ -149,83 +91,39 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/weiyan': {
-      id: '/weiyan'
-      path: '/weiyan'
-      fullPath: '/weiyan'
-      preLoaderRoute: typeof WeiyanRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/shop': {
-      id: '/shop'
-      path: '/shop'
-      fullPath: '/shop'
-      preLoaderRoute: typeof ShopRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pet': {
-      id: '/pet'
-      path: '/pet'
-      fullPath: '/pet'
-      preLoaderRoute: typeof PetRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/me': {
-      id: '/me'
-      path: '/me'
-      fullPath: '/me'
-      preLoaderRoute: typeof MeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/friends': {
-      id: '/friends'
-      path: '/friends'
-      fullPath: '/friends'
-      preLoaderRoute: typeof FriendsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/emotion': {
-      id: '/emotion'
-      path: '/emotion'
-      fullPath: '/emotion'
-      preLoaderRoute: typeof EmotionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/challenges': {
-      id: '/challenges'
-      path: '/challenges'
-      fullPath: '/challenges'
-      preLoaderRoute: typeof ChallengesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+    '/weiyan': { id: '/weiyan'; path: '/weiyan'; fullPath: '/weiyan'; preLoaderRoute: typeof WeiyanRouteImport; parentRoute: typeof rootRouteImport }
+    '/shop': { id: '/shop'; path: '/shop'; fullPath: '/shop'; preLoaderRoute: typeof ShopRouteImport; parentRoute: typeof rootRouteImport }
+    '/settings': { id: '/settings'; path: '/settings'; fullPath: '/settings'; preLoaderRoute: typeof SettingsRouteImport; parentRoute: typeof rootRouteImport }
+    '/pet': { id: '/pet'; path: '/pet'; fullPath: '/pet'; preLoaderRoute: typeof PetRouteImport; parentRoute: typeof rootRouteImport }
+    '/me': { id: '/me'; path: '/me'; fullPath: '/me'; preLoaderRoute: typeof MeRouteImport; parentRoute: typeof rootRouteImport }
+    '/journal': { id: '/journal'; path: '/journal'; fullPath: '/journal'; preLoaderRoute: typeof JournalRouteImport; parentRoute: typeof rootRouteImport }
+    '/friends': { id: '/friends'; path: '/friends'; fullPath: '/friends'; preLoaderRoute: typeof FriendsRouteImport; parentRoute: typeof rootRouteImport }
+    '/emotion': { id: '/emotion'; path: '/emotion'; fullPath: '/emotion'; preLoaderRoute: typeof EmotionRouteImport; parentRoute: typeof rootRouteImport }
+    '/challenges': { id: '/challenges'; path: '/challenges'; fullPath: '/challenges'; preLoaderRoute: typeof ChallengesRouteImport; parentRoute: typeof rootRouteImport }
+    '/': { id: '/'; path: '/'; fullPath: '/'; preLoaderRoute: typeof IndexRouteImport; parentRoute: typeof rootRouteImport }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  ChallengesRoute: ChallengesRoute,
-  EmotionRoute: EmotionRoute,
-  FriendsRoute: FriendsRoute,
-  MeRoute: MeRoute,
-  PetRoute: PetRoute,
-  SettingsRoute: SettingsRoute,
-  ShopRoute: ShopRoute,
-  WeiyanRoute: WeiyanRoute,
+  IndexRoute,
+  ChallengesRoute,
+  EmotionRoute,
+  FriendsRoute,
+  JournalRoute,
+  MeRoute,
+  PetRoute,
+  SettingsRoute,
+  ShopRoute,
+  WeiyanRoute,
 }
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+export const routeTree = rootRouteImport._addFileChildren(rootRouteChildren)._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
