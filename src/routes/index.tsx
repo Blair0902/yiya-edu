@@ -66,9 +66,9 @@ function ModeToggle({ mode, setMode, onOpenEmotion }: { mode: "student" | "paren
           </button>
         ))}
       </div>
-      <Link to="/emotion" aria-label="情绪标签" className="flex h-9 w-9 items-center justify-center rounded-full bg-card shadow-sm">
+      <button onClick={onOpenEmotion} aria-label="情绪标签" className="flex h-9 w-9 items-center justify-center rounded-full bg-card shadow-sm">
         <Smile className="h-4 w-4 text-berry" />
-      </Link>
+      </button>
     </div>
   );
 }
