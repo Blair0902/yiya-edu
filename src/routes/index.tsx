@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { FireworksCanvas } from "@/components/Fireworks";
+import { EmotionDialog } from "@/components/EmotionDialog";
+import { usePet, PET_COLORS } from "@/lib/pet-store";
 import petImg from "@/assets/pet.png";
 import sceneImg from "@/assets/scene.jpg";
 import {
