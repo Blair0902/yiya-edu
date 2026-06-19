@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WeiyanRouteImport } from './routes/weiyan'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as PetRouteImport } from './routes/pet'
 import { Route as MeRouteImport } from './routes/me'
 import { Route as FriendsRouteImport } from './routes/friends'
@@ -26,6 +27,11 @@ const WeiyanRoute = WeiyanRouteImport.update({
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PetRoute = PetRouteImport.update({
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/friends': typeof FriendsRoute
   '/me': typeof MeRoute
   '/pet': typeof PetRoute
+  '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/weiyan': typeof WeiyanRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/friends': typeof FriendsRoute
   '/me': typeof MeRoute
   '/pet': typeof PetRoute
+  '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/weiyan': typeof WeiyanRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/friends': typeof FriendsRoute
   '/me': typeof MeRoute
   '/pet': typeof PetRoute
+  '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/weiyan': typeof WeiyanRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/friends'
     | '/me'
     | '/pet'
+    | '/settings'
     | '/shop'
     | '/weiyan'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/friends'
     | '/me'
     | '/pet'
+    | '/settings'
     | '/shop'
     | '/weiyan'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/friends'
     | '/me'
     | '/pet'
+    | '/settings'
     | '/shop'
     | '/weiyan'
   fileRoutesById: FileRoutesById
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   FriendsRoute: typeof FriendsRoute
   MeRoute: typeof MeRoute
   PetRoute: typeof PetRoute
+  SettingsRoute: typeof SettingsRoute
   ShopRoute: typeof ShopRoute
   WeiyanRoute: typeof WeiyanRoute
 }
@@ -148,6 +161,13 @@ declare module '@tanstack/react-router' {
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pet': {
@@ -202,19 +222,10 @@ const rootRouteChildren: RootRouteChildren = {
   FriendsRoute: FriendsRoute,
   MeRoute: MeRoute,
   PetRoute: PetRoute,
+  SettingsRoute: SettingsRoute,
   ShopRoute: ShopRoute,
   WeiyanRoute: WeiyanRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
