@@ -113,8 +113,15 @@ function StudentHome() {
         style={{ backgroundImage: `url(${sceneImg})`, backgroundSize: "cover", backgroundPosition: "center bottom" }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
-        <img src={petImg} alt="宠物豆豆" width={768} height={768} className="absolute bottom-0 left-1/2 h-52 w-52 -translate-x-1/2 drop-shadow-xl" />
-        <div className="absolute bottom-4 right-3 rounded-2xl bg-card/90 px-3 py-1.5 text-xs font-bold shadow-sm">豆豆 · Lv.4</div>
+        <div
+          className="absolute bottom-2 left-1/2 flex h-44 w-44 -translate-x-1/2 items-center justify-center rounded-full text-8xl shadow-xl"
+          style={{ background: palette.bg }}
+        >
+          {palette.emoji}
+        </div>
+        <div className="absolute bottom-4 right-3 rounded-2xl bg-card/90 px-3 py-1.5 text-xs font-bold shadow-sm">
+          {pet.name} · Lv.4{pet.traits.length ? ` · ${pet.traits[0]}` : ""}
+        </div>
       </div>
 
       {/* Chat 聊天区 (学生：跟自己说好听的话 / 探索 / 概略) */}
