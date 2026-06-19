@@ -21,7 +21,10 @@ const KEY = "doudou.pet";
 const DEFAULT: PetConfig = { adopted: false, name: "豆豆", color: "sun", traits: [] };
 
 const listeners = new Set<() => void>();
-function read(): PetConfig {
+let cache: PetConfig = DEFAULT;
+let cacheLoaded = false;
+
+function loadFromStorage(): PetConfig {
   if (typeof window === "undefined") return DEFAULT;
   try {
     const raw = window.localStorage.getItem(KEY);
@@ -31,20 +34,32 @@ function read(): PetConfig {
     return DEFAULT;
   }
 }
+function read(): PetConfig {
+  if (!cacheLoaded && typeof window !== "undefined") {
+    cache = loadFromStorage();
+    cacheLoaded = true;
+  }
+  return cache;
+}
+function emit() {
+  cache = loadFromStorage();
+  cacheLoaded = true;
+  listeners.forEach((l) => l());
+}
 function subscribe(cb: () => void) {
   listeners.add(cb);
-  const onStorage = (e: StorageEvent) => { if (e.key === KEY) cb(); };
+  const onStorage = (e: StorageEvent) => { if (e.key === KEY) emit(); };
   window.addEventListener("storage", onStorage);
   return () => { listeners.delete(cb); window.removeEventListener("storage", onStorage); };
 }
 
 export function savePet(p: PetConfig) {
   window.localStorage.setItem(KEY, JSON.stringify(p));
-  listeners.forEach((l) => l());
+  emit();
 }
 export function resetPet() {
   window.localStorage.removeItem(KEY);
-  listeners.forEach((l) => l());
+  emit();
 }
 export function usePet(): PetConfig {
   return useSyncExternalStore(subscribe, read, () => DEFAULT);
