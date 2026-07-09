@@ -38,23 +38,23 @@ const QUESTIONS: Q[] = [
 ];
 
 // 4-letter code → cute persona name
-const PERSONAS: Record<string, { title: string; desc: string; emoji: string }> = {
-  IFCP: { title: "温柔探索家", desc: "内心柔软，充满好奇，喜欢跟着感觉走", emoji: "🌷" },
-  IFCL: { title: "细腻小画家", desc: "感受细腻，喜欢把生活安排得温暖有序", emoji: "🎨" },
-  IFSP: { title: "小小守护者", desc: "安静而体贴，总是默默照顾身边的人", emoji: "🕊️" },
-  IFSL: { title: "静水深流者", desc: "温柔稳定，是可以依靠的小小灯塔", emoji: "🕯️" },
-  ITCP: { title: "点子发明家", desc: "爱思考、爱试新，脑袋里全是奇思妙想", emoji: "💡" },
-  ITCL: { title: "小小策略师", desc: "冷静又机灵，喜欢把事情想明白再做", emoji: "🧩" },
-  ITSP: { title: "沉思观察员", desc: "安静细心，从细节里发现宝藏", emoji: "🔍" },
-  ITSL: { title: "小小工程师", desc: "有条不紊，喜欢把世界搭得整整齐齐", emoji: "🛠️" },
-  OFCP: { title: "阳光冒险家", desc: "热情又勇敢，愿意为在乎的人冲在前面", emoji: "☀️" },
-  OFCL: { title: "温暖组织者", desc: "爱人也爱计划，是团队里的小太阳", emoji: "🌻" },
-  OFSP: { title: "开心分享家", desc: "乐观外放，走到哪里都带来笑声", emoji: "🎈" },
-  OFSL: { title: "温柔小队长", desc: "有责任心，也懂得照顾大家的感受", emoji: "🧡" },
-  OTCP: { title: "点燃行动派", desc: "有想法就要试试看，勇于打破常规", emoji: "⚡" },
-  OTCL: { title: "小小指挥官", desc: "目标清晰，喜欢带着大家往前走", emoji: "🚩" },
-  OTSP: { title: "灵活实干家", desc: "干脆利落，遇到问题就出手解决", emoji: "🔧" },
-  OTSL: { title: "稳稳建造者", desc: "认真踏实，说到就一定做到", emoji: "🏗️" },
+const PERSONAS: Record<string, { title: string; desc: string; emoji: string; pet: string }> = {
+  IFCP: { title: "温柔探索家", desc: "内心柔软，充满好奇，喜欢跟着感觉走", emoji: "🌷", pet: "🦋" },
+  IFCL: { title: "细腻小画家", desc: "感受细腻，喜欢把生活安排得温暖有序", emoji: "🎨", pet: "🐰" },
+  IFSP: { title: "小小守护者", desc: "安静而体贴，总是默默照顾身边的人", emoji: "🕊️", pet: "🐹" },
+  IFSL: { title: "静水深流者", desc: "温柔稳定，是可以依靠的小小灯塔", emoji: "🕯️", pet: "🦉" },
+  ITCP: { title: "点子发明家", desc: "爱思考、爱试新，脑袋里全是奇思妙想", emoji: "💡", pet: "🦊" },
+  ITCL: { title: "小小策略师", desc: "冷静又机灵，喜欢把事情想明白再做", emoji: "🧩", pet: "🐱" },
+  ITSP: { title: "沉思观察员", desc: "安静细心，从细节里发现宝藏", emoji: "🔍", pet: "🐢" },
+  ITSL: { title: "小小工程师", desc: "有条不紊，喜欢把世界搭得整整齐齐", emoji: "🛠️", pet: "🐧" },
+  OFCP: { title: "阳光冒险家", desc: "热情又勇敢，愿意为在乎的人冲在前面", emoji: "☀️", pet: "🐶" },
+  OFCL: { title: "温暖组织者", desc: "爱人也爱计划，是团队里的小太阳", emoji: "🌻", pet: "🐨" },
+  OFSP: { title: "开心分享家", desc: "乐观外放，走到哪里都带来笑声", emoji: "🎈", pet: "🐥" },
+  OFSL: { title: "温柔小队长", desc: "有责任心，也懂得照顾大家的感受", emoji: "🧡", pet: "🐻" },
+  OTCP: { title: "点燃行动派", desc: "有想法就要试试看，勇于打破常规", emoji: "⚡", pet: "🦁" },
+  OTCL: { title: "小小指挥官", desc: "目标清晰，喜欢带着大家往前走", emoji: "🚩", pet: "🐯" },
+  OTSP: { title: "灵活实干家", desc: "干脆利落，遇到问题就出手解决", emoji: "🔧", pet: "🐵" },
+  OTSL: { title: "稳稳建造者", desc: "认真踏实，说到就一定做到", emoji: "🏗️", pet: "🐼" },
 };
 
 type Phase = "splash" | "hatching" | "hatched" | "name" | "quiz" | "result";
@@ -101,6 +101,7 @@ export function AdoptionFlow() {
       traits: [],
       personality: persona.title,
       personalityCode: code,
+      avatar: persona.pet,
       mode: "student",
     });
   };
@@ -302,7 +303,7 @@ export function AdoptionFlow() {
             <p className="mt-4 leading-relaxed text-foreground/70">{persona.desc}</p>
 
             <div className="mt-8 rounded-3xl bg-card p-5 shadow-sm">
-              <div className="text-6xl">{palette.emoji}</div>
+              <div className="text-7xl drop-shadow-[0_10px_20px_rgba(220,140,40,0.3)]">{persona.pet}</div>
               <p className="mt-2 text-lg font-bold">{name}</p>
               <p className="text-xs text-muted-foreground">{persona.title} · 和你一起成长</p>
             </div>

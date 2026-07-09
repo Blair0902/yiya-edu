@@ -22,6 +22,7 @@ type Props = {
 export function GameModal({ gameId, title, intro, energy, color, onClose, onComplete }: Props) {
   const [started, setStarted] = useState(false);
   const [done, setDone] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
 
   const finish = () => {
     setDone(true);
@@ -31,20 +32,36 @@ export function GameModal({ gameId, title, intro, energy, color, onClose, onComp
     }, 1200);
   };
 
+  const panelClass = fullscreen
+    ? "w-full h-full max-w-none bg-background p-5 pb-8 overflow-y-auto animate-fade-in"
+    : "w-full max-w-md rounded-t-3xl bg-background p-5 pb-8 max-h-[90vh] overflow-y-auto animate-slide-in-right";
+  const wrapClass = fullscreen
+    ? "fixed inset-0 z-[60] flex items-stretch justify-center bg-background animate-fade-in"
+    : "fixed inset-0 z-[60] flex items-end justify-center bg-black/50 animate-fade-in";
+
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 animate-fade-in"
-      onClick={onClose}
+      className={wrapClass}
+      onClick={fullscreen ? undefined : onClose}
     >
       <div
-        className="w-full max-w-md rounded-t-3xl bg-background p-5 pb-8 max-h-[90vh] overflow-y-auto animate-slide-in-right"
+        className={panelClass}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-lg font-bold" style={{ color }}>{title}</h3>
-          <button onClick={onClose} className="rounded-full p-1 active:scale-90">
-            <X className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setFullscreen((v) => !v)}
+              aria-label={fullscreen ? "退出全屏" : "全屏"}
+              className="rounded-full p-1 active:scale-90"
+            >
+              {fullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+            </button>
+            <button onClick={onClose} aria-label="关闭" className="rounded-full p-1 active:scale-90">
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         {done ? (

@@ -8,9 +8,9 @@ import { addEnergy, useEnergyTotal } from "@/lib/energy-store";
 import sceneImg from "@/assets/scene.jpg";
 import {
   Sparkles, Check, Settings, Share2, Smile, Volume2, MessageCircleHeart, Sparkle, Flame, Heart, Send,
-  CalendarDays, Clock, Rocket, NotebookPen, Plus, X,
+  CalendarDays, Clock, Rocket, NotebookPen, Plus, X, Trash2,
 } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, type ReactNode } from "react";
 
 const HABIT_SUGGESTIONS: { cat: string; emoji: string; items: { emoji: string; title: string; energy: number }[] }[] = [
   { cat: "Easy Wins", emoji: "⭐", items: [
@@ -115,6 +115,7 @@ function TopBar({ onOpenEmotion }: { onOpenEmotion: () => void }) {
 function StudentHome() {
   const pet = usePet();
   const palette = PET_COLORS.find((c) => c.key === pet.color) ?? PET_COLORS[0];
+  const petEmoji = pet.avatar || palette.emoji;
   const [tasks, setTasks] = useState(seed);
   const [nextId, setNextId] = useState(seed.length + 1);
   const [exploding, setExploding] = useState<Set<number>>(new Set());
@@ -150,6 +151,10 @@ function StudentHome() {
     setAddOpen(false);
   };
 
+  const removeTask = (id: number) => {
+    setTasks((ts) => ts.filter((t) => t.id !== id));
+  };
+
   return (
     <div className="relative">
       <FireworksCanvas active={showFireworks} />
@@ -167,7 +172,7 @@ function StudentHome() {
         style={{ backgroundImage: `url(${sceneImg})`, backgroundSize: "cover", backgroundPosition: "center bottom" }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
-        <CuteChick emoji={palette.emoji} />
+        <CuteChick emoji={petEmoji} />
         <div className="absolute bottom-4 right-3 rounded-2xl bg-card/90 px-3 py-1.5 text-xs font-bold shadow-sm">
           {pet.name} · Lv.4{pet.personality ? ` · ${pet.personality}` : ""}
         </div>
@@ -227,28 +232,32 @@ function StudentHome() {
             {visible.map((t) => {
               const isBursting = exploding.has(t.id);
               return (
-                <li
+                <SwipeableTask
                   key={t.id}
-                  className={`card-pop flex items-center gap-3 p-3 transition-all duration-500 ${
-                    isBursting ? "scale-125 opacity-0 blur-sm" : ""
-                  }`}
+                  onDelete={() => removeTask(t.id)}
                 >
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-secondary text-xl">{t.emoji}</div>
-                  <div className="flex-1">
-                    <p className="font-bold">{t.title}</p>
-                    <span className="flex items-center gap-0.5 text-xs text-primary">
-                      <Sparkles className="h-3 w-3" /> +{t.energy} 能量
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => complete(t.id)}
-                    disabled={isBursting}
-                    aria-label="完成"
-                    className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-border bg-card text-transparent active:scale-90 active:border-primary active:bg-primary active:text-primary-foreground"
+                  <div
+                    className={`card-pop flex items-center gap-3 p-3 transition-all duration-500 ${
+                      isBursting ? "scale-125 opacity-0 blur-sm" : ""
+                    }`}
                   >
-                    <Check className="h-4 w-4" />
-                  </button>
-                </li>
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-secondary text-xl">{t.emoji}</div>
+                    <div className="flex-1">
+                      <p className="font-bold">{t.title}</p>
+                      <span className="flex items-center gap-0.5 text-xs text-primary">
+                        <Sparkles className="h-3 w-3" /> +{t.energy} 能量
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => complete(t.id)}
+                      disabled={isBursting}
+                      aria-label="完成"
+                      className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-border bg-card text-transparent active:scale-90 active:border-primary active:bg-primary active:text-primary-foreground"
+                    >
+                      <Check className="h-4 w-4" />
+                    </button>
+                  </div>
+                </SwipeableTask>
               );
             })}
           </ul>
@@ -310,6 +319,53 @@ function StudentHome() {
         </ul>
       </section>
     </div>
+  );
+}
+
+function SwipeableTask({ children, onDelete }: { children: ReactNode; onDelete: () => void }) {
+  const [dx, setDx] = useState(0);
+  const [open, setOpen] = useState(false);
+  const startX = useRef<number | null>(null);
+  const REVEAL = 80;
+
+  const onStart = (x: number) => { startX.current = x; };
+  const onMove = (x: number) => {
+    if (startX.current == null) return;
+    const delta = x - startX.current;
+    const base = open ? -REVEAL : 0;
+    const next = Math.min(0, Math.max(-140, base + delta));
+    setDx(next);
+  };
+  const onEnd = () => {
+    startX.current = null;
+    if (dx < -REVEAL) { setOpen(true); setDx(-REVEAL); }
+    else { setOpen(false); setDx(0); }
+  };
+
+  return (
+    <li className="relative">
+      <button
+        onClick={onDelete}
+        aria-label="删除"
+        className="absolute inset-y-0 right-0 flex w-20 items-center justify-center rounded-2xl bg-berry text-berry-foreground active:scale-95"
+        style={{ background: "oklch(0.7 0.16 20)" }}
+      >
+        <Trash2 className="h-5 w-5 text-white" />
+      </button>
+      <div
+        className="relative touch-pan-y transition-transform"
+        style={{ transform: `translateX(${dx}px)`, transitionDuration: startX.current == null ? "200ms" : "0ms" }}
+        onTouchStart={(e) => onStart(e.touches[0].clientX)}
+        onTouchMove={(e) => onMove(e.touches[0].clientX)}
+        onTouchEnd={onEnd}
+        onMouseDown={(e) => onStart(e.clientX)}
+        onMouseMove={(e) => { if (startX.current != null) onMove(e.clientX); }}
+        onMouseUp={onEnd}
+        onMouseLeave={() => { if (startX.current != null) onEnd(); }}
+      >
+        {children}
+      </div>
+    </li>
   );
 }
 
