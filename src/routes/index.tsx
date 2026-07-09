@@ -74,39 +74,27 @@ const seed: Task[] = [
 ];
 
 function HomePage() {
-  const [mode, setMode] = useState<"student" | "parent">("student");
+  const pet = usePet();
   const [emotionOpen, setEmotionOpen] = useState(false);
   return (
     <AppShell>
-      <ModeToggle mode={mode} setMode={setMode} onOpenEmotion={() => setEmotionOpen(true)} />
-      {mode === "student" ? <StudentHome /> : <ParentHome />}
+      <TopBar onOpenEmotion={() => setEmotionOpen(true)} />
+      {pet.mode === "parent" ? <ParentHome /> : <StudentHome />}
       <EmotionDialog open={emotionOpen} onClose={() => setEmotionOpen(false)} />
     </AppShell>
   );
 }
 
-function ModeToggle({ mode, setMode, onOpenEmotion }: { mode: "student" | "parent"; setMode: (m: "student" | "parent") => void; onOpenEmotion: () => void }) {
+function TopBar({ onOpenEmotion }: { onOpenEmotion: () => void }) {
+  const pet = usePet();
   return (
     <div className="sticky top-0 z-40 flex items-center justify-between gap-3 bg-background/85 px-4 py-2.5 backdrop-blur-md">
       <Link to="/settings" aria-label="设置" className="flex h-9 w-9 items-center justify-center rounded-full bg-card shadow-sm">
         <Settings className="h-4 w-4 text-foreground/70" />
       </Link>
-      <div className="flex rounded-full bg-card p-0.5 shadow-sm">
-        {[
-          { k: "student", label: "学生端" },
-          { k: "parent", label: "家长端" },
-        ].map((m) => (
-          <button
-            key={m.k}
-            onClick={() => setMode(m.k as "student" | "parent")}
-            className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition-all ${
-              mode === m.k ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-            }`}
-          >
-            {m.label}
-          </button>
-        ))}
-      </div>
+      <p className="text-sm font-bold">
+        {pet.name} <span className="text-muted-foreground">· {pet.personality ?? "小小星球"}</span>
+      </p>
       <div className="flex items-center gap-2">
         <Link to="/journal" aria-label="日签" className="flex h-9 w-9 items-center justify-center rounded-full bg-card shadow-sm">
           <CalendarDays className="h-4 w-4 text-primary" />
