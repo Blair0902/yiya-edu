@@ -172,7 +172,7 @@ function StudentHome() {
         style={{ backgroundImage: `url(${sceneImg})`, backgroundSize: "cover", backgroundPosition: "center bottom" }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
-        <CuteChick emoji={petEmoji} />
+        <CuteChick emoji={petEmoji} image={pet.avatarImage} />
         <div className="absolute bottom-4 right-3 rounded-2xl bg-card/90 px-3 py-1.5 text-xs font-bold shadow-sm">
           {pet.name} · Lv.4{pet.personality ? ` · ${pet.personality}` : ""}
         </div>
