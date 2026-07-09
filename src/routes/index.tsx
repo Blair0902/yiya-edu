@@ -123,6 +123,10 @@ function StudentHome() {
   const energy = tasks.filter((t) => t.done).reduce((s, t) => s + t.energy, 0);
 
   const complete = (id: number) => {
+    const task = tasks.find((t) => t.id === id);
+    if (task && !task.done) {
+      addEnergy({ name: task.title, emoji: task.emoji, energy: task.energy, source: "习惯" });
+    }
     setShowFireworks(true);
     if (fireworksTimer.current) clearTimeout(fireworksTimer.current);
     fireworksTimer.current = setTimeout(() => setShowFireworks(false), 2200);
