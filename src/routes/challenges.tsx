@@ -7,6 +7,7 @@ import {
   Focus, Heart, NotebookPen, Clock, Rocket, Gift, X,
 } from "lucide-react";
 import { useState, useRef } from "react";
+import { addEnergy } from "@/lib/energy-store";
 
 export const Route = createFileRoute("/challenges")({
   head: () => ({
@@ -34,16 +35,16 @@ const initial: Section[] = [
         title: "学科能力",
         items: [
           {
-            icon: Scroll, name: "古诗文 · 智能背诵", energy: 25, done: 0, total: 1, color: "oklch(0.8 0.13 60)", tag: "AI",
+            icon: Scroll, name: "古诗文 · 高考名篇", energy: 25, done: 0, total: 1, color: "oklch(0.8 0.13 60)", tag: "AI",
             game: "poetry",
             intro:
-              "覆盖中考古诗文阅读、高考古代诗文阅读全部课内必考篇目，包含文言文、古诗词两大核心内容。可自主选择教材及篇目，通过智能出题和周期性滚动复习，解决古诗文背诵及理解问题，对接默写、文言文翻译、诗词鉴赏等题型，稳步提升语文古诗文板块分值。",
+              "覆盖高考必背古诗文名篇，包含文言文与古诗词。多种游戏形式：句子填空、下一句选择、认作者、品诗意。通过智能出题和周期性滚动复习，稳步提升语文古诗文板块分值，对接默写、翻译、鉴赏题型。",
           },
           {
             icon: Calculator, name: "数学 · 754 每日练习", energy: 18, done: 0, total: 1, color: "oklch(0.82 0.13 230)",
             game: "math754",
             intro:
-              "在 7 分钟内完成 5 道 4 位数相乘的竖式练习。通过限时计算打磨细心度和心理韧性，提升运算速度、准确率，夯实数学计算基础。",
+              "在 7 分钟内完成 5 道 4 位数相乘的竖式练习。内置全屏草稿本可手写演算竖式，通过限时计算打磨细心度和心理韧性，提升运算速度、准确率，夯实数学计算基础。",
           },
           {
             icon: Languages, name: "英语 · 单词成文", energy: 20, done: 0, total: 1, color: "oklch(0.82 0.14 150)", tag: "AI",
@@ -160,10 +161,12 @@ function Challenges() {
       })
     );
     if (burstName && burstItem) {
+      const name: string = burstName;
+      const item: Completed = burstItem;
+      addEnergy({ name: item.name, energy: item.energy, source: "挑战" });
       setShowFireworks(true);
       if (fireworksTimer.current) clearTimeout(fireworksTimer.current);
       fireworksTimer.current = setTimeout(() => setShowFireworks(false), 2500);
-      const name = burstName; const item = burstItem;
       setExploding((s) => new Set(s).add(name));
       setTimeout(() => removeItem(name, item), 550);
     }

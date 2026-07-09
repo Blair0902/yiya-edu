@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { X, Sparkles, Mic, Send, Timer, Trophy } from "lucide-react";
+import { X, Sparkles, Mic, Send, Timer, Trophy, Pencil, Eraser, Maximize2, Minimize2 } from "lucide-react";
 
 export type GameId =
   | "math754"
@@ -87,7 +87,7 @@ function GameBody({ gameId, color, onFinish }: { gameId: GameId; color: string; 
   return <Schulte color={color} onFinish={onFinish} />;
 }
 
-/* -------- 754 数学 -------- */
+/* -------- 754 数学 · 4 位数竖式练习 + 全屏草稿本 -------- */
 function Math754({ color, onFinish }: { color: string; onFinish: () => void }) {
   const problems = useMemo(
     () =>
@@ -103,6 +103,7 @@ function Math754({ color, onFinish }: { color: string; onFinish: () => void }) {
   const [correct, setCorrect] = useState(0);
   const [seconds, setSeconds] = useState(7 * 60);
   const [feedback, setFeedback] = useState<null | boolean>(null);
+  const [scratchOpen, setScratchOpen] = useState(false);
 
   useEffect(() => {
     if (seconds <= 0) return;
@@ -151,60 +152,286 @@ function Math754({ color, onFinish }: { color: string; onFinish: () => void }) {
           </p>
         )}
       </div>
+      <div className="mt-3 flex gap-2">
+        <button
+          onClick={() => setScratchOpen(true)}
+          className="flex flex-1 items-center justify-center gap-1 rounded-full bg-secondary py-2.5 text-sm font-bold active:scale-95"
+        >
+          <Pencil className="h-4 w-4" /> 打开草稿本
+        </button>
+      </div>
       <button
         onClick={submit}
         disabled={!val}
-        className="mt-4 w-full rounded-full bg-primary py-3 text-sm font-bold text-primary-foreground active:scale-95 disabled:opacity-50"
+        className="mt-3 w-full rounded-full bg-primary py-3 text-sm font-bold text-primary-foreground active:scale-95 disabled:opacity-50"
       >
         提交
       </button>
+      {scratchOpen && <Scratchpad title={`${p.a} × ${p.b}`} onClose={() => setScratchOpen(false)} />}
     </div>
   );
 }
 
-/* -------- 古诗文 -------- */
+/* -------- 全屏草稿本 -------- */
+function Scratchpad({ title, onClose }: { title: string; onClose: () => void }) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const drawing = useRef(false);
+  const last = useRef<{ x: number; y: number } | null>(null);
+  const [tool, setTool] = useState<"pen" | "eraser">("pen");
+
+  useEffect(() => {
+    const c = canvasRef.current!;
+    const dpr = window.devicePixelRatio || 1;
+    const rect = c.getBoundingClientRect();
+    c.width = rect.width * dpr;
+    c.height = rect.height * dpr;
+    const ctx = c.getContext("2d")!;
+    ctx.scale(dpr, dpr);
+    ctx.fillStyle = "#fffdf7";
+    ctx.fillRect(0, 0, rect.width, rect.height);
+    // grid
+    ctx.strokeStyle = "#e5e7eb";
+    ctx.lineWidth = 1;
+    const step = 32;
+    for (let x = 0; x < rect.width; x += step) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, rect.height); ctx.stroke();
+    }
+    for (let y = 0; y < rect.height; y += step) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(rect.width, y); ctx.stroke();
+    }
+  }, []);
+
+  const pos = (e: React.PointerEvent) => {
+    const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  };
+  const down = (e: React.PointerEvent) => {
+    (e.target as HTMLCanvasElement).setPointerCapture(e.pointerId);
+    drawing.current = true;
+    last.current = pos(e);
+  };
+  const move = (e: React.PointerEvent) => {
+    if (!drawing.current || !last.current) return;
+    const p = pos(e);
+    const ctx = canvasRef.current!.getContext("2d")!;
+    ctx.strokeStyle = tool === "pen" ? "#111827" : "#fffdf7";
+    ctx.lineWidth = tool === "pen" ? 2.5 : 18;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(last.current.x, last.current.y);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    last.current = p;
+  };
+  const up = () => { drawing.current = false; last.current = null; };
+  const clear = () => {
+    const c = canvasRef.current!;
+    const ctx = c.getContext("2d")!;
+    const rect = c.getBoundingClientRect();
+    ctx.fillStyle = "#fffdf7";
+    ctx.fillRect(0, 0, rect.width, rect.height);
+    ctx.strokeStyle = "#e5e7eb";
+    const step = 32;
+    for (let x = 0; x < rect.width; x += step) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, rect.height); ctx.stroke();
+    }
+    for (let y = 0; y < rect.height; y += step) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(rect.width, y); ctx.stroke();
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[70] flex flex-col bg-[#fffdf7] animate-fade-in">
+      <div className="flex items-center justify-between border-b border-border px-4 py-2">
+        <div>
+          <p className="text-xs text-muted-foreground">草稿本</p>
+          <p className="font-mono text-lg font-bold">{title}</p>
+        </div>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setTool("pen")}
+            className={`flex h-9 w-9 items-center justify-center rounded-full ${tool === "pen" ? "bg-primary text-primary-foreground" : "bg-secondary"}`}
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setTool("eraser")}
+            className={`flex h-9 w-9 items-center justify-center rounded-full ${tool === "eraser" ? "bg-primary text-primary-foreground" : "bg-secondary"}`}
+          >
+            <Eraser className="h-4 w-4" />
+          </button>
+          <button onClick={clear} className="rounded-full bg-secondary px-3 py-1.5 text-xs font-bold">清空</button>
+          <button onClick={onClose} className="ml-1 flex h-9 w-9 items-center justify-center rounded-full bg-secondary">
+            <Minimize2 className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+      <canvas
+        ref={canvasRef}
+        onPointerDown={down}
+        onPointerMove={move}
+        onPointerUp={up}
+        onPointerCancel={up}
+        className="flex-1 touch-none"
+        style={{ width: "100%", height: "100%" }}
+      />
+    </div>
+  );
+}
+
+/* -------- 古诗文 · 高考名篇多形式 -------- */
+type PoetryQ =
+  | { kind: "fill"; poem: string; author: string; line: string; ans: string; hint?: string }
+  | { kind: "choice"; poem: string; author: string; line: string; options: string[]; ans: string }
+  | { kind: "author"; poem: string; line: string; options: string[]; ans: string }
+  | { kind: "meaning"; poem: string; author: string; line: string; options: string[]; ans: string };
+
+const POETRY_BANK: PoetryQ[] = [
+  { kind: "fill", poem: "《劝学》", author: "荀子", line: "青，取之于蓝，____。", ans: "而青于蓝" },
+  { kind: "fill", poem: "《师说》", author: "韩愈", line: "师者，____。", ans: "所以传道受业解惑也" },
+  { kind: "fill", poem: "《赤壁赋》", author: "苏轼", line: "寄蜉蝣于天地，____。", ans: "渺沧海之一粟" },
+  { kind: "fill", poem: "《岳阳楼记》", author: "范仲淹", line: "先天下之忧而忧，____。", ans: "后天下之乐而乐" },
+  { kind: "fill", poem: "《出师表》", author: "诸葛亮", line: "受任于败军之际，____。", ans: "奉命于危难之间" },
+  { kind: "fill", poem: "《离骚》", author: "屈原", line: "路漫漫其修远兮，____。", ans: "吾将上下而求索" },
+  {
+    kind: "choice", poem: "《念奴娇·赤壁怀古》", author: "苏轼",
+    line: "大江东去，浪淘尽，____。",
+    options: ["千古风流人物", "多少英雄豪杰", "无数兴亡旧事"], ans: "千古风流人物",
+  },
+  {
+    kind: "choice", poem: "《登高》", author: "杜甫",
+    line: "无边落木萧萧下，____。",
+    options: ["不尽长江滚滚来", "万里悲秋常作客", "百年多病独登台"], ans: "不尽长江滚滚来",
+  },
+  {
+    kind: "author", poem: "《琵琶行》",
+    line: "同是天涯沦落人，相逢何必曾相识。",
+    options: ["李白", "白居易", "王维", "杜牧"], ans: "白居易",
+  },
+  {
+    kind: "author", poem: "《声声慢》",
+    line: "寻寻觅觅，冷冷清清，凄凄惨惨戚戚。",
+    options: ["李清照", "辛弃疾", "苏轼", "柳永"], ans: "李清照",
+  },
+  {
+    kind: "meaning", poem: "《游山西村》", author: "陆游",
+    line: "山重水复疑无路，柳暗花明又一村。",
+    options: [
+      "困境中往往孕育着新的转机",
+      "山路曲折难行，需要向导",
+      "描写春天柳绿花红的景色",
+    ],
+    ans: "困境中往往孕育着新的转机",
+  },
+  {
+    kind: "meaning", poem: "《过零丁洋》", author: "文天祥",
+    line: "人生自古谁无死，留取丹心照汗青。",
+    options: [
+      "以死明志，忠贞不渝的家国情怀",
+      "感叹人生无常，及时行乐",
+      "劝人淡看生死，不必执着",
+    ],
+    ans: "以死明志，忠贞不渝的家国情怀",
+  },
+];
+
+function shuffled<T>(arr: T[]): T[] {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function Poetry({ color, onFinish }: { color: string; onFinish: () => void }) {
-  const qs = [
-    { poem: "《静夜思》李白", line: "床前明月光，____。", ans: "疑是地上霜" },
-    { poem: "《登鹳雀楼》王之涣", line: "欲穷千里目，____。", ans: "更上一层楼" },
-    { poem: "《爱莲说》周敦颐", line: "出淤泥而不染，____。", ans: "濯清涟而不妖" },
-  ];
+  const qs = useMemo(() => shuffled(POETRY_BANK).slice(0, 5), []);
   const [i, setI] = useState(0);
   const [val, setVal] = useState("");
+  const [picked, setPicked] = useState<string | null>(null);
   const [reveal, setReveal] = useState(false);
+  const [score, setScore] = useState(0);
   const q = qs[i];
+
+  const kindLabel =
+    q.kind === "fill" ? "填空" : q.kind === "choice" ? "选下一句" : q.kind === "author" ? "认作者" : "品诗意";
+
+  const answer = () => {
+    let ok = false;
+    if (q.kind === "fill") ok = val.trim() === q.ans;
+    else ok = picked === q.ans;
+    if (ok) setScore((s) => s + 1);
+    setReveal(true);
+  };
 
   const next = () => {
     setReveal(false);
     setVal("");
+    setPicked(null);
     if (i + 1 >= qs.length) onFinish();
     else setI(i + 1);
   };
 
+  const options = q.kind === "fill" ? [] : (q as { options: string[] }).options;
+
   return (
     <div>
-      <div className="mb-2 text-sm text-muted-foreground">第 {i + 1}/{qs.length} 题</div>
+      <div className="mb-2 flex items-center justify-between text-sm">
+        <span className="text-muted-foreground">第 {i + 1}/{qs.length} 题 · {kindLabel}</span>
+        <span className="font-bold text-primary">答对 {score}</span>
+      </div>
       <div className="rounded-2xl bg-card p-5">
-        <p className="text-xs text-muted-foreground">{q.poem}</p>
+        <p className="text-xs text-muted-foreground">
+          {q.poem}{q.kind !== "author" ? ` · ${(q as { author?: string }).author ?? ""}` : ""}
+        </p>
         <p className="mt-2 text-lg font-bold leading-relaxed" style={{ color }}>{q.line}</p>
-        <input
-          value={val}
-          onChange={(e) => setVal(e.target.value)}
-          placeholder="填写下一句"
-          className="mt-3 w-full rounded-xl border-2 border-border bg-background px-4 py-3 outline-none focus:border-primary"
-        />
+
+        {q.kind === "fill" ? (
+          <input
+            value={val}
+            onChange={(e) => setVal(e.target.value)}
+            placeholder="填写空缺内容"
+            disabled={reveal}
+            className="mt-3 w-full rounded-xl border-2 border-border bg-background px-4 py-3 outline-none focus:border-primary disabled:opacity-70"
+          />
+        ) : (
+          <div className="mt-3 flex flex-col gap-2">
+            {options.map((opt) => {
+              const isPicked = picked === opt;
+              const isAns = opt === q.ans;
+              const state = !reveal
+                ? isPicked ? "border-primary bg-primary/10" : "border-border bg-background"
+                : isAns ? "border-primary bg-primary/15" : isPicked ? "border-destructive bg-destructive/10" : "border-border bg-background opacity-70";
+              return (
+                <button
+                  key={opt}
+                  disabled={reveal}
+                  onClick={() => setPicked(opt)}
+                  className={`rounded-xl border-2 px-4 py-2.5 text-left text-sm active:scale-[0.98] ${state}`}
+                >
+                  {opt}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {reveal && (
-          <p className="mt-2 text-sm">
-            {val.trim() === q.ans
+          <p className="mt-3 rounded-xl bg-secondary p-3 text-sm">
+            {((q.kind === "fill" ? val.trim() === q.ans : picked === q.ans))
               ? <span className="font-bold text-primary">✅ 完美！</span>
-              : <span className="text-muted-foreground">正确答案：<span className="font-bold text-foreground">{q.ans}</span></span>}
+              : <>
+                  <span className="font-bold text-destructive">再想想～</span>{" "}
+                  <span>正确答案：<span className="font-bold text-foreground">{q.ans}</span></span>
+                </>
+            }
           </p>
         )}
       </div>
       {!reveal ? (
         <button
-          onClick={() => setReveal(true)}
-          disabled={!val}
+          onClick={answer}
+          disabled={q.kind === "fill" ? !val.trim() : !picked}
           className="mt-4 w-full rounded-full bg-primary py-3 text-sm font-bold text-primary-foreground active:scale-95 disabled:opacity-50"
         >
           对答案
@@ -220,6 +447,7 @@ function Poetry({ color, onFinish }: { color: string; onFinish: () => void }) {
     </div>
   );
 }
+
 
 /* -------- 英语单词成文 -------- */
 function English({ color, onFinish }: { color: string; onFinish: () => void }) {

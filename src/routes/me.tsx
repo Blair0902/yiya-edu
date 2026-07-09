@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
-import { Settings, Flame, Sparkles, Calendar, Heart, ChevronRight, BookOpen, Trophy, Bell, PawPrint } from "lucide-react";
+import { Settings, Flame, Sparkles, Calendar, Heart, ChevronRight, BookOpen, Trophy, Bell, PawPrint, Zap } from "lucide-react";
 import { resetPet, usePet, PET_COLORS } from "@/lib/pet-store";
+import { useEnergyTotal } from "@/lib/energy-store";
 
 export const Route = createFileRoute("/me")({
   head: () => ({
@@ -15,11 +16,11 @@ export const Route = createFileRoute("/me")({
 
 const stats = [
   { icon: Flame, label: "连续打卡", value: "12 天", color: "var(--berry)" },
-  { icon: Sparkles, label: "总能量", value: "1,420", color: "var(--primary)" },
   { icon: Trophy, label: "完成挑战", value: "37", color: "var(--sun)" },
 ];
 
 const menu = [
+  { icon: Zap, label: "能量账本", to: "/energy" as const, desc: "每次打卡的能量明细", accent: true },
   { icon: Calendar, label: "情绪日历", to: "/emotion" as const, desc: "看见每天的感受" },
   { icon: Heart, label: "我的微言", to: "/weiyan" as const, desc: "对内心说的话" },
   { icon: BookOpen, label: "成长数据看板", to: "/me" as const, desc: "行为·想法·感受·需求" },
@@ -27,6 +28,7 @@ const menu = [
 ];
 
 function Me() {
+  const energyTotal = useEnergyTotal();
   return (
     <AppShell bgClass="bg-gradient-to-b from-[oklch(0.92_0.07_45)] to-background">
       <header className="flex items-center justify-between px-5 pt-8">
@@ -53,8 +55,30 @@ function Me() {
         </div>
       </section>
 
+      {/* energy hero */}
+      <section className="mt-3 px-4">
+        <Link
+          to="/energy"
+          className="card-pop flex items-center gap-3 p-4 active:scale-[0.99]"
+          style={{ background: "linear-gradient(135deg, oklch(0.92 0.12 80), oklch(0.88 0.13 60))" }}
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/60">
+            <Zap className="h-6 w-6 text-primary" />
+          </div>
+          <div className="flex-1">
+            <p className="text-xs font-bold uppercase tracking-widest text-foreground/70">能量账本</p>
+            <p className="mt-0.5 flex items-baseline gap-1">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="text-2xl font-black tabular-nums">{energyTotal.toLocaleString()}</span>
+              <span className="text-xs text-foreground/70">当前总能量</span>
+            </p>
+          </div>
+          <ChevronRight className="h-5 w-5 text-foreground/60" />
+        </Link>
+      </section>
+
       {/* stats */}
-      <section className="mt-3 grid grid-cols-3 gap-2 px-4">
+      <section className="mt-3 grid grid-cols-2 gap-2 px-4">
         {stats.map((s) => {
           const Icon = s.icon;
           return (
