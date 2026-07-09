@@ -322,7 +322,7 @@ function StudentHome() {
   );
 }
 
-function SwipeableTask({ children, onDelete }: { children: React.ReactNode; onDelete: () => void }) {
+function SwipeableTask({ children, onDelete }: { children: ReactNode; onDelete: () => void }) {
   const [dx, setDx] = useState(0);
   const [open, setOpen] = useState(false);
   const startX = useRef<number | null>(null);
