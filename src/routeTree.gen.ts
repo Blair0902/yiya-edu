@@ -16,6 +16,7 @@ import { Route as PetRouteImport } from './routes/pet'
 import { Route as MeRouteImport } from './routes/me'
 import { Route as JournalRouteImport } from './routes/journal'
 import { Route as FriendsRouteImport } from './routes/friends'
+import { Route as EnergyRouteImport } from './routes/energy'
 import { Route as EmotionRouteImport } from './routes/emotion'
 import { Route as ChallengesRouteImport } from './routes/challenges'
 import { Route as IndexRouteImport } from './routes/index'
@@ -55,6 +56,11 @@ const FriendsRoute = FriendsRouteImport.update({
   path: '/friends',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EnergyRoute = EnergyRouteImport.update({
+  id: '/energy',
+  path: '/energy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmotionRoute = EmotionRouteImport.update({
   id: '/emotion',
   path: '/emotion',
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/challenges': typeof ChallengesRoute
   '/emotion': typeof EmotionRoute
+  '/energy': typeof EnergyRoute
   '/friends': typeof FriendsRoute
   '/journal': typeof JournalRoute
   '/me': typeof MeRoute
@@ -87,6 +94,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/challenges': typeof ChallengesRoute
   '/emotion': typeof EmotionRoute
+  '/energy': typeof EnergyRoute
   '/friends': typeof FriendsRoute
   '/journal': typeof JournalRoute
   '/me': typeof MeRoute
@@ -100,6 +108,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/challenges': typeof ChallengesRoute
   '/emotion': typeof EmotionRoute
+  '/energy': typeof EnergyRoute
   '/friends': typeof FriendsRoute
   '/journal': typeof JournalRoute
   '/me': typeof MeRoute
@@ -114,6 +123,7 @@ export interface FileRouteTypes {
     | '/'
     | '/challenges'
     | '/emotion'
+    | '/energy'
     | '/friends'
     | '/journal'
     | '/me'
@@ -126,6 +136,7 @@ export interface FileRouteTypes {
     | '/'
     | '/challenges'
     | '/emotion'
+    | '/energy'
     | '/friends'
     | '/journal'
     | '/me'
@@ -138,6 +149,7 @@ export interface FileRouteTypes {
     | '/'
     | '/challenges'
     | '/emotion'
+    | '/energy'
     | '/friends'
     | '/journal'
     | '/me'
@@ -151,6 +163,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ChallengesRoute: typeof ChallengesRoute
   EmotionRoute: typeof EmotionRoute
+  EnergyRoute: typeof EnergyRoute
   FriendsRoute: typeof FriendsRoute
   JournalRoute: typeof JournalRoute
   MeRoute: typeof MeRoute
@@ -211,6 +224,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FriendsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/energy': {
+      id: '/energy'
+      path: '/energy'
+      fullPath: '/energy'
+      preLoaderRoute: typeof EnergyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/emotion': {
       id: '/emotion'
       path: '/emotion'
@@ -239,6 +259,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ChallengesRoute: ChallengesRoute,
   EmotionRoute: EmotionRoute,
+  EnergyRoute: EnergyRoute,
   FriendsRoute: FriendsRoute,
   JournalRoute: JournalRoute,
   MeRoute: MeRoute,
