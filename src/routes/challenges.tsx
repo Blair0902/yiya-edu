@@ -324,6 +324,18 @@ function Challenges() {
             </div>
           </div>
         )}
+
+        {gameCtx && gameCtx.item.game && (
+          <GameModal
+            gameId={gameCtx.item.game}
+            title={gameCtx.item.name}
+            intro={gameCtx.item.intro || ""}
+            energy={gameCtx.item.energy}
+            color={gameCtx.item.color}
+            onClose={() => setGameCtx(null)}
+            onComplete={() => handleCheckIn(gameCtx.sKey, gameCtx.subIdx, gameCtx.itemIdx)}
+          />
+        )}
       </div>
     </AppShell>
   );
