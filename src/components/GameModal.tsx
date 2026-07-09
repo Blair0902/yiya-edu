@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { X, Sparkles, Mic, Send, Timer, Trophy } from "lucide-react";
+import { X, Sparkles, Mic, Send, Timer, Trophy, Pencil, Eraser, Maximize2, Minimize2 } from "lucide-react";
 
 export type GameId =
   | "math754"
