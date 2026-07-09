@@ -49,6 +49,31 @@ function SettingsPage() {
           <div className="text-3xl">🐥</div>
         </div>
 
+        {/* Mode switcher — student/parent lives ONLY here now */}
+        <div className="card-pop mt-3 p-4">
+          <div className="flex items-center gap-2">
+            <Users className="h-4 w-4 text-primary" />
+            <p className="text-xs font-bold uppercase tracking-widest text-primary">使用者</p>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">选择当前使用豆豆星球的人</p>
+          <div className="mt-3 flex rounded-full bg-secondary p-0.5">
+            {[
+              { k: "student", label: "学生端" },
+              { k: "parent", label: "家长端" },
+            ].map((m) => (
+              <button
+                key={m.k}
+                onClick={() => savePet({ mode: m.k as "student" | "parent" })}
+                className={`flex-1 rounded-full py-2 text-sm font-bold transition-all ${
+                  pet.mode === m.k ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground"
+                }`}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="mt-3 rounded-3xl bg-[oklch(0.74_0.16_45)] p-4 text-primary-foreground shadow-sm">
           <div className="flex items-center gap-3">
             <div className="text-2xl">🌱</div>
