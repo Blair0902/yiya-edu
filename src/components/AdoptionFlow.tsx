@@ -255,11 +255,6 @@ export function AdoptionFlow() {
         {/* --- QUIZ --- */}
         {phase === "quiz" && (
           <div className="flex flex-1 flex-col">
-            <div className="mb-4 flex gap-1.5">
-              <div className="h-1.5 flex-1 rounded-full bg-primary" />
-              <div className="h-1.5 flex-1 rounded-full bg-primary" />
-              <div className="h-1.5 flex-1 rounded-full bg-card" />
-            </div>
             <p className="mt-4 text-xs font-bold uppercase tracking-widest text-primary">
               人格小测验 · {qIdx + 1}/{QUESTIONS.length}
             </p>
