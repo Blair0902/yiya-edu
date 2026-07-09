@@ -8,7 +8,7 @@ import { addEnergy, useEnergyTotal } from "@/lib/energy-store";
 import sceneImg from "@/assets/scene.jpg";
 import {
   Sparkles, Check, Settings, Share2, Smile, Volume2, MessageCircleHeart, Sparkle, Flame, Heart, Send,
-  CalendarDays, Clock, Rocket, NotebookPen, Plus, X,
+  CalendarDays, Clock, Rocket, NotebookPen, Plus, X, Trash2,
 } from "lucide-react";
 import { useState, useRef } from "react";
 
