@@ -291,11 +291,8 @@ export function AdoptionFlow() {
         {/* --- RESULT --- */}
         {phase === "result" && (
           <div className="flex flex-1 flex-col text-center">
-            <div className="mb-4 flex gap-1.5">
-              <div className="h-1.5 flex-1 rounded-full bg-primary" />
-              <div className="h-1.5 flex-1 rounded-full bg-primary" />
-              <div className="h-1.5 flex-1 rounded-full bg-primary" />
-            </div>
+
+
 
             <p className="mt-6 text-xs font-bold uppercase tracking-widest text-primary">你的人格是</p>
             <h1 className="mt-2 text-3xl">
