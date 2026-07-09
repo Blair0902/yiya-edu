@@ -55,8 +55,30 @@ function Me() {
         </div>
       </section>
 
+      {/* energy hero */}
+      <section className="mt-3 px-4">
+        <Link
+          to="/energy"
+          className="card-pop flex items-center gap-3 p-4 active:scale-[0.99]"
+          style={{ background: "linear-gradient(135deg, oklch(0.92 0.12 80), oklch(0.88 0.13 60))" }}
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/60">
+            <Zap className="h-6 w-6 text-primary" />
+          </div>
+          <div className="flex-1">
+            <p className="text-xs font-bold uppercase tracking-widest text-foreground/70">能量账本</p>
+            <p className="mt-0.5 flex items-baseline gap-1">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="text-2xl font-black tabular-nums">{energyTotal.toLocaleString()}</span>
+              <span className="text-xs text-foreground/70">当前总能量</span>
+            </p>
+          </div>
+          <ChevronRight className="h-5 w-5 text-foreground/60" />
+        </Link>
+      </section>
+
       {/* stats */}
-      <section className="mt-3 grid grid-cols-3 gap-2 px-4">
+      <section className="mt-3 grid grid-cols-2 gap-2 px-4">
         {stats.map((s) => {
           const Icon = s.icon;
           return (
