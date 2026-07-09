@@ -33,18 +33,47 @@ const initial: Section[] = [
       {
         title: "学科能力",
         items: [
-          { icon: BookOpen, name: "语文 · 5 单词成文", energy: 18, done: 0, total: 1, color: "oklch(0.86 0.12 25)", tag: "AI" },
-          { icon: Scroll, name: "古诗文 · 每日一诵", energy: 12, done: 1, total: 1, color: "oklch(0.8 0.13 60)" },
-          { icon: Calculator, name: "数学 · 754 思维", energy: 18, done: 1, total: 3, color: "oklch(0.82 0.13 230)" },
-          { icon: Languages, name: "英语 · 5 单词成文", energy: 20, done: 0, total: 1, color: "oklch(0.82 0.14 150)", tag: "AI" },
+          {
+            icon: Scroll, name: "古诗文 · 智能背诵", energy: 25, done: 0, total: 1, color: "oklch(0.8 0.13 60)", tag: "AI",
+            game: "poetry",
+            intro:
+              "覆盖中考古诗文阅读、高考古代诗文阅读全部课内必考篇目，包含文言文、古诗词两大核心内容。可自主选择教材及篇目，通过智能出题和周期性滚动复习，解决古诗文背诵及理解问题，对接默写、文言文翻译、诗词鉴赏等题型，稳步提升语文古诗文板块分值。",
+          },
+          {
+            icon: Calculator, name: "数学 · 754 每日练习", energy: 18, done: 0, total: 1, color: "oklch(0.82 0.13 230)",
+            game: "math754",
+            intro:
+              "在 7 分钟内完成 5 道 4 位数相乘的竖式练习。通过限时计算打磨细心度和心理韧性，提升运算速度、准确率，夯实数学计算基础。",
+          },
+          {
+            icon: Languages, name: "英语 · 单词成文", energy: 20, done: 0, total: 1, color: "oklch(0.82 0.14 150)", tag: "AI",
+            game: "english",
+            intro:
+              "录入本周新学的 5 个英文单词，AI 根据所选题材生成适配阅读水平的英文短文。完成短文朗读录音即可打卡，在语境中活学活用生词。",
+          },
         ],
       },
       {
         title: "AI 时代核心能力",
         items: [
-          { icon: Brain, name: "思辨 · 今天的一个为什么", energy: 20, done: 0, total: 1, color: "oklch(0.74 0.16 280)" },
-          { icon: HardHat, name: "六顶思考帽 · 角色练习", energy: 25, done: 0, total: 1, color: "oklch(0.72 0.18 35)" },
-          { icon: Focus, name: "专注 · 舒尔特方格", energy: 15, done: 1, total: 2, color: "oklch(0.78 0.16 320)" },
+          {
+            icon: Brain, name: "思辨 · 今天的一个为什么", energy: 20, done: 0, total: 1, color: "oklch(0.74 0.16 280)",
+            game: "why",
+            intro:
+              "根据当日学习、生活真实情境，从青少年全人发展维度中任选其一，提出好奇问题，和 AI 协作梳理思考逻辑，锻炼提问、求证与独立思辨能力。",
+          },
+          {
+            icon: HardHat, name: "六顶思考帽 · 多维度思考", energy: 30, done: 0, total: 1, color: "oklch(0.72 0.18 35)",
+            game: "hats",
+            intro:
+              "从适宜青少年思辨讨论的新闻事件列表中选取感兴趣的议题，联动 AI 依次切换六重视角开展平行思考：白帽梳理客观事实数据、红帽表达直观情绪感受、黑帽深挖潜在风险弊端、黄帽探索事件价值机遇、绿帽构思创新解决思路、蓝帽统筹流程并汇总全部观点。建立结构化完整思考框架，完成深度思辨训练。",
+          },
+          {
+            icon: Focus, name: "专注 · 舒尔特方格", energy: 15, done: 0, total: 1, color: "oklch(0.78 0.16 320)",
+            game: "schulte",
+            intro:
+              "标准舒尔特方格专注力训练，按从小到大顺序快速点选方格内数字，限时完成多组练习。长期训练可提升视觉搜寻速度、视觉稳定性与注意力持续时长，改善上课走神、做题粗心、阅读跳字漏行、专注力薄弱等问题，高效夯实专注底层能力。",
+          },
         ],
       },
     ],
