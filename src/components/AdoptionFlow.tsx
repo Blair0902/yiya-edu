@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { usePet, savePet, PET_COLORS } from "@/lib/pet-store";
-import { Sparkles, ArrowRight } from "lucide-react";
+import { Sparkles, ArrowRight, SkipForward } from "lucide-react";
 
 type Axis = "I" | "F" | "C" | "P"; // playful axes: Inner/Outer, Feeling/Thinking, Curious/Careful, Present/Planner
 type QOpt = { label: string; emoji: string; axis: Axis; opposite: string };
@@ -105,9 +105,61 @@ export function AdoptionFlow() {
     });
   };
 
+  const STEPS: { key: Phase; label: string; short: string }[] = [
+    { key: "splash", label: "开屏", short: "开屏" },
+    { key: "hatching", label: "破壳", short: "破壳" },
+    { key: "name", label: "起名", short: "起名" },
+    { key: "quiz", label: "测评", short: "测评" },
+    { key: "result", label: "生成结果", short: "结果" },
+  ];
+  const currentStepIdx = STEPS.findIndex(
+    (s) => s.key === (phase === "hatched" ? "hatching" : phase)
+  );
+  const currentStep = STEPS[currentStepIdx];
+  const skipToName = () => setPhase("name");
+
   return (
     <div className="fixed inset-0 z-[100] flex items-stretch justify-center bg-gradient-to-b from-[oklch(0.95_0.08_60)] via-[oklch(0.94_0.06_320)] to-[oklch(0.94_0.08_230)]">
-      <div className="mx-auto flex w-full max-w-md flex-col px-6 pb-8 pt-12">
+      <div className="mx-auto flex w-full max-w-md flex-col px-6 pb-8 pt-6">
+
+        {/* --- Stage stepper (always visible) --- */}
+        <div className="mb-4">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-primary">
+              {String(currentStepIdx + 1).padStart(2, "0")} · {currentStep.label}
+            </p>
+            {(phase === "splash" || phase === "hatching" || phase === "hatched") && (
+              <button
+                onClick={skipToName}
+                className="flex items-center gap-1 rounded-full bg-card/80 px-3 py-1 text-[11px] font-bold text-foreground/70 shadow-sm backdrop-blur active:scale-95"
+              >
+                跳过 <SkipForward className="h-3 w-3" />
+              </button>
+            )}
+          </div>
+          <div className="mt-2 flex items-center gap-1">
+            {STEPS.map((s, i) => {
+              const done = i < currentStepIdx;
+              const active = i === currentStepIdx;
+              return (
+                <div key={s.key} className="flex flex-1 flex-col items-center gap-1">
+                  <div
+                    className={`h-1.5 w-full rounded-full transition-all ${
+                      done ? "bg-primary" : active ? "bg-primary/70" : "bg-card"
+                    }`}
+                  />
+                  <span
+                    className={`text-[10px] font-bold transition-colors ${
+                      done || active ? "text-primary" : "text-foreground/40"
+                    }`}
+                  >
+                    {s.short}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
         {/* --- SPLASH / HATCHING / HATCHED --- */}
         {(phase === "splash" || phase === "hatching" || phase === "hatched") && (
@@ -149,6 +201,22 @@ export function AdoptionFlow() {
               {phase === "hatching" && "感觉蛋壳在轻轻晃动"}
               {phase === "hatched" && "ta 想认识你 💛"}
             </p>
+            {(phase === "splash" || phase === "hatching") && (
+              <button
+                onClick={() => setPhase("hatched")}
+                className="mt-8 rounded-full bg-card/80 px-4 py-2 text-xs font-bold text-foreground/70 shadow-sm active:scale-95"
+              >
+                直接进入 →
+              </button>
+            )}
+            {phase === "hatched" && (
+              <button
+                onClick={() => setPhase("name")}
+                className="mt-8 rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground shadow-md active:scale-95"
+              >
+                去给 ta 起名 →
+              </button>
+            )}
             <style>{`
               @keyframes shake {
                 0%,100% { transform: rotate(-6deg) translateY(0); }
@@ -161,11 +229,6 @@ export function AdoptionFlow() {
         {/* --- NAME --- */}
         {phase === "name" && (
           <div className="flex flex-1 flex-col">
-            <div className="mb-4 flex gap-1.5">
-              <div className="h-1.5 flex-1 rounded-full bg-primary" />
-              <div className="h-1.5 flex-1 rounded-full bg-card" />
-              <div className="h-1.5 flex-1 rounded-full bg-card" />
-            </div>
             <h2 className="mt-6 text-2xl">给 ta 起个名字吧</h2>
             <p className="mt-1 text-sm text-foreground/60">这个名字会陪伴你们很久</p>
             <div className="mt-8 flex justify-center text-7xl">{palette.emoji}</div>
@@ -192,11 +255,6 @@ export function AdoptionFlow() {
         {/* --- QUIZ --- */}
         {phase === "quiz" && (
           <div className="flex flex-1 flex-col">
-            <div className="mb-4 flex gap-1.5">
-              <div className="h-1.5 flex-1 rounded-full bg-primary" />
-              <div className="h-1.5 flex-1 rounded-full bg-primary" />
-              <div className="h-1.5 flex-1 rounded-full bg-card" />
-            </div>
             <p className="mt-4 text-xs font-bold uppercase tracking-widest text-primary">
               人格小测验 · {qIdx + 1}/{QUESTIONS.length}
             </p>
@@ -233,11 +291,8 @@ export function AdoptionFlow() {
         {/* --- RESULT --- */}
         {phase === "result" && (
           <div className="flex flex-1 flex-col text-center">
-            <div className="mb-4 flex gap-1.5">
-              <div className="h-1.5 flex-1 rounded-full bg-primary" />
-              <div className="h-1.5 flex-1 rounded-full bg-primary" />
-              <div className="h-1.5 flex-1 rounded-full bg-primary" />
-            </div>
+
+
 
             <p className="mt-6 text-xs font-bold uppercase tracking-widest text-primary">你的人格是</p>
             <h1 className="mt-2 text-3xl">
