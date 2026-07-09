@@ -161,11 +161,12 @@ function Challenges() {
       })
     );
     if (burstName && burstItem) {
-      addEnergy({ name: burstItem.name, energy: burstItem.energy, source: "挑战" });
+      const name: string = burstName;
+      const item: Completed = burstItem;
+      addEnergy({ name: item.name, energy: item.energy, source: "挑战" });
       setShowFireworks(true);
       if (fireworksTimer.current) clearTimeout(fireworksTimer.current);
       fireworksTimer.current = setTimeout(() => setShowFireworks(false), 2500);
-      const name = burstName; const item = burstItem;
       setExploding((s) => new Set(s).add(name));
       setTimeout(() => removeItem(name, item), 550);
     }
