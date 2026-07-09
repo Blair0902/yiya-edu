@@ -369,7 +369,7 @@ function SwipeableTask({ children, onDelete }: { children: ReactNode; onDelete: 
   );
 }
 
-function CuteChick({ emoji }: { emoji: string }) {
+function CuteChick({ emoji, image }: { emoji: string; image?: string }) {
   return (
     <div className="absolute bottom-3 left-1/2 -translate-x-1/2">
       <div className="relative">
@@ -377,9 +377,17 @@ function CuteChick({ emoji }: { emoji: string }) {
           className="absolute -inset-6 rounded-full blur-2xl"
           style={{ background: "radial-gradient(closest-side, oklch(0.95 0.15 85 / 0.55), transparent)" }}
         />
-        <div className="relative text-[7.5rem] drop-shadow-[0_8px_18px_rgba(220,140,40,0.35)] animate-[bounce_2.6s_ease-in-out_infinite]">
-          {emoji}
-        </div>
+        {image ? (
+          <img
+            src={image}
+            alt="pet"
+            className="relative h-40 w-40 rounded-full object-cover drop-shadow-[0_8px_18px_rgba(220,140,40,0.35)] animate-[bounce_2.6s_ease-in-out_infinite]"
+          />
+        ) : (
+          <div className="relative text-[7.5rem] drop-shadow-[0_8px_18px_rgba(220,140,40,0.35)] animate-[bounce_2.6s_ease-in-out_infinite]">
+            {emoji}
+          </div>
+        )}
         <div
           className="mx-auto mt-1 h-2 w-24 rounded-full"
           style={{ background: "radial-gradient(closest-side, oklch(0.4 0.05 40 / 0.35), transparent)" }}
