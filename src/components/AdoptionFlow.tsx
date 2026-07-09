@@ -527,9 +527,10 @@ export function AdoptionFlow() {
               </button>
               <button
                 onClick={finish}
-                className="flex flex-1 items-center justify-center gap-1 rounded-2xl bg-primary py-3 font-bold text-primary-foreground shadow-lg"
+                disabled={!imgFinal}
+                className="flex flex-1 items-center justify-center gap-1 rounded-2xl bg-primary py-3 font-bold text-primary-foreground shadow-lg disabled:opacity-50"
               >
-                <Sparkles className="h-4 w-4" /> 带 {name} 回家
+                <Sparkles className="h-4 w-4" /> {imgFinal ? `带 ${name} 回家` : "正在生成…"}
               </button>
             </div>
           </div>
