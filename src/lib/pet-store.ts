@@ -10,6 +10,8 @@ export type PetConfig = {
   personality?: string; // e.g. "温柔探索家"
   personalityCode?: string; // e.g. "IFCP"
   avatar?: string; // emoji chosen by personality
+  eggColor?: string; // egg base color key
+  eggPattern?: string; // egg pattern key
   mode: PetMode;
 };
 
