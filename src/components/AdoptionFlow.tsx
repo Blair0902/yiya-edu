@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { usePet, savePet, PET_COLORS } from "@/lib/pet-store";
-import { Sparkles, ArrowRight } from "lucide-react";
+import { Sparkles, ArrowRight, SkipForward } from "lucide-react";
 
 type Axis = "I" | "F" | "C" | "P"; // playful axes: Inner/Outer, Feeling/Thinking, Curious/Careful, Present/Planner
 type QOpt = { label: string; emoji: string; axis: Axis; opposite: string };
