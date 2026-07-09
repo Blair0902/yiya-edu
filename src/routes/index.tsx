@@ -236,7 +236,7 @@ function StudentHome() {
                   key={t.id}
                   onDelete={() => removeTask(t.id)}
                 >
-                  <li
+                  <div
                     className={`card-pop flex items-center gap-3 p-3 transition-all duration-500 ${
                       isBursting ? "scale-125 opacity-0 blur-sm" : ""
                     }`}
@@ -256,7 +256,7 @@ function StudentHome() {
                     >
                       <Check className="h-4 w-4" />
                     </button>
-                  </li>
+                  </div>
                 </SwipeableTask>
               );
             })}
