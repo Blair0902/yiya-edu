@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
+import { AdoptionFlow } from "@/components/AdoptionFlow";
 import { FireworksCanvas } from "@/components/Fireworks";
 import { EmotionDialog } from "@/components/EmotionDialog";
 import { usePet, PET_COLORS } from "@/lib/pet-store";
@@ -78,11 +79,14 @@ function HomePage() {
   const pet = usePet();
   const [emotionOpen, setEmotionOpen] = useState(false);
   return (
-    <AppShell>
-      <TopBar onOpenEmotion={() => setEmotionOpen(true)} />
-      {pet.mode === "parent" ? <ParentHome /> : <StudentHome />}
-      <EmotionDialog open={emotionOpen} onClose={() => setEmotionOpen(false)} />
-    </AppShell>
+    <>
+      <AdoptionFlow />
+      <AppShell>
+        <TopBar onOpenEmotion={() => setEmotionOpen(true)} />
+        {pet.mode === "parent" ? <ParentHome /> : <StudentHome />}
+        <EmotionDialog open={emotionOpen} onClose={() => setEmotionOpen(false)} />
+      </AppShell>
+    </>
   );
 }
 
