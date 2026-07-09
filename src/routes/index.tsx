@@ -115,6 +115,7 @@ function TopBar({ onOpenEmotion }: { onOpenEmotion: () => void }) {
 function StudentHome() {
   const pet = usePet();
   const palette = PET_COLORS.find((c) => c.key === pet.color) ?? PET_COLORS[0];
+  const petEmoji = pet.avatar || palette.emoji;
   const [tasks, setTasks] = useState(seed);
   const [nextId, setNextId] = useState(seed.length + 1);
   const [exploding, setExploding] = useState<Set<number>>(new Set());
