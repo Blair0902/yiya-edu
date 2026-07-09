@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePet, savePet } from "@/lib/pet-store";
-import { Sparkles, ArrowRight, SkipForward, Check } from "lucide-react";
+import { streamImage } from "@/lib/streamImage";
+import { Sparkles, ArrowRight, SkipForward, Check, Loader2 } from "lucide-react";
 
 type Axis = "I" | "F" | "C" | "P";
 type QOpt = { label: string; emoji: string; axis: Axis; opposite: string };
