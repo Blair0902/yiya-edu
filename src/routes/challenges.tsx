@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { FireworksCanvas } from "@/components/Fireworks";
+import { GameModal, type GameId } from "@/components/GameModal";
 import {
-  BookOpen, Calculator, Languages, Scroll, Brain, HardHat, Sparkles,
+  Calculator, Languages, Scroll, Brain, HardHat, Sparkles,
   Focus, Heart, NotebookPen, Clock, Rocket, Gift, X,
 } from "lucide-react";
 import { useState, useRef } from "react";
