@@ -7,6 +7,7 @@ import {
   Focus, Heart, NotebookPen, Clock, Rocket, Gift, X,
 } from "lucide-react";
 import { useState, useRef } from "react";
+import { addEnergy } from "@/lib/energy-store";
 
 export const Route = createFileRoute("/challenges")({
   head: () => ({
