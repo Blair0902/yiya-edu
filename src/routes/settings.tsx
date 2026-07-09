@@ -2,9 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import {
   ArrowLeft, Copy, Zap, Target, BarChart3, Newspaper,
-  CalendarDays, PawPrint, Bell, Lock, HelpCircle, LogOut, Sparkles,
+  CalendarDays, PawPrint, Bell, Lock, HelpCircle, LogOut, Sparkles, Users,
 } from "lucide-react";
-import { usePet } from "@/lib/pet-store";
+import { usePet, savePet } from "@/lib/pet-store";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({ meta: [{ title: "设置 · 豆豆星球" }] }),
