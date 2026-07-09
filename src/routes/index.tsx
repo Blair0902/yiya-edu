@@ -322,6 +322,53 @@ function StudentHome() {
   );
 }
 
+function SwipeableTask({ children, onDelete }: { children: React.ReactNode; onDelete: () => void }) {
+  const [dx, setDx] = useState(0);
+  const [open, setOpen] = useState(false);
+  const startX = useRef<number | null>(null);
+  const REVEAL = 80;
+
+  const onStart = (x: number) => { startX.current = x; };
+  const onMove = (x: number) => {
+    if (startX.current == null) return;
+    const delta = x - startX.current;
+    const base = open ? -REVEAL : 0;
+    const next = Math.min(0, Math.max(-140, base + delta));
+    setDx(next);
+  };
+  const onEnd = () => {
+    startX.current = null;
+    if (dx < -REVEAL) { setOpen(true); setDx(-REVEAL); }
+    else { setOpen(false); setDx(0); }
+  };
+
+  return (
+    <li className="relative">
+      <button
+        onClick={onDelete}
+        aria-label="删除"
+        className="absolute inset-y-0 right-0 flex w-20 items-center justify-center rounded-2xl bg-berry text-berry-foreground active:scale-95"
+        style={{ background: "oklch(0.7 0.16 20)" }}
+      >
+        <Trash2 className="h-5 w-5 text-white" />
+      </button>
+      <div
+        className="relative touch-pan-y transition-transform"
+        style={{ transform: `translateX(${dx}px)`, transitionDuration: startX.current == null ? "200ms" : "0ms" }}
+        onTouchStart={(e) => onStart(e.touches[0].clientX)}
+        onTouchMove={(e) => onMove(e.touches[0].clientX)}
+        onTouchEnd={onEnd}
+        onMouseDown={(e) => onStart(e.clientX)}
+        onMouseMove={(e) => { if (startX.current != null) onMove(e.clientX); }}
+        onMouseUp={onEnd}
+        onMouseLeave={() => { if (startX.current != null) onEnd(); }}
+      >
+        {children}
+      </div>
+    </li>
+  );
+}
+
 function CuteChick({ emoji }: { emoji: string }) {
   return (
     <div className="absolute bottom-3 left-1/2 -translate-x-1/2">
