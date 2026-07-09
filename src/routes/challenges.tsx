@@ -161,6 +161,7 @@ function Challenges() {
       })
     );
     if (burstName && burstItem) {
+      addEnergy({ name: burstItem.name, energy: burstItem.energy, source: "挑战" });
       setShowFireworks(true);
       if (fireworksTimer.current) clearTimeout(fireworksTimer.current);
       fireworksTimer.current = setTimeout(() => setShowFireworks(false), 2500);
