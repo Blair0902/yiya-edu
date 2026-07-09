@@ -1,10 +1,15 @@
 import { useSyncExternalStore } from "react";
 
+export type PetMode = "student" | "parent";
+
 export type PetConfig = {
   adopted: boolean;
   name: string;
   color: string; // key from COLORS
   traits: string[];
+  personality?: string; // e.g. "温柔探索家"
+  personalityCode?: string; // e.g. "IFCP"
+  mode: PetMode;
 };
 
 export const PET_COLORS = [
@@ -18,7 +23,7 @@ export const PET_COLORS = [
 export const PET_TRAITS = ["勇敢", "温柔", "好奇", "调皮", "细心", "乐观", "安静", "热情"] as const;
 
 const KEY = "doudou.pet";
-const DEFAULT: PetConfig = { adopted: false, name: "豆豆", color: "sun", traits: [] };
+const DEFAULT: PetConfig = { adopted: false, name: "豆豆", color: "sun", traits: [], mode: "student" };
 
 const listeners = new Set<() => void>();
 let cache: PetConfig = DEFAULT;
@@ -53,8 +58,9 @@ function subscribe(cb: () => void) {
   return () => { listeners.delete(cb); window.removeEventListener("storage", onStorage); };
 }
 
-export function savePet(p: PetConfig) {
-  window.localStorage.setItem(KEY, JSON.stringify(p));
+export function savePet(p: Partial<PetConfig>) {
+  const merged = { ...read(), ...p };
+  window.localStorage.setItem(KEY, JSON.stringify(merged));
   emit();
 }
 export function resetPet() {

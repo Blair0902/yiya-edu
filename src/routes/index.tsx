@@ -6,9 +6,52 @@ import { usePet, PET_COLORS } from "@/lib/pet-store";
 import sceneImg from "@/assets/scene.jpg";
 import {
   Sparkles, Check, Settings, Share2, Smile, Volume2, MessageCircleHeart, Sparkle, Flame, Heart, Send,
-  CalendarDays, Clock, Rocket, NotebookPen,
+  CalendarDays, Clock, Rocket, NotebookPen, Plus, X,
 } from "lucide-react";
 import { useState, useRef } from "react";
+
+const HABIT_SUGGESTIONS: { cat: string; emoji: string; items: { emoji: string; title: string; energy: number }[] }[] = [
+  { cat: "Easy Wins", emoji: "⭐", items: [
+    { emoji: "🛏️", title: "整理床铺", energy: 5 },
+    { emoji: "🧦", title: "把袜子放好", energy: 3 },
+  ]},
+  { cat: "Gratitude", emoji: "🙏", items: [
+    { emoji: "💌", title: "写一件感谢的事", energy: 8 },
+    { emoji: "🤗", title: "对家人说谢谢", energy: 6 },
+  ]},
+  { cat: "Calm", emoji: "🧘", items: [
+    { emoji: "🌬️", title: "三个深呼吸", energy: 8 },
+    { emoji: "🕯️", title: "静坐 3 分钟", energy: 10 },
+  ]},
+  { cat: "Connection", emoji: "💗", items: [
+    { emoji: "📞", title: "给朋友发条消息", energy: 8 },
+    { emoji: "👨‍👩‍👧", title: "和家人聊 5 分钟", energy: 10 },
+  ]},
+  { cat: "Hygiene", emoji: "🧼", items: [
+    { emoji: "🪥", title: "认真刷牙", energy: 5 },
+    { emoji: "🚿", title: "洗澡", energy: 6 },
+  ]},
+  { cat: "Movement", emoji: "🏃", items: [
+    { emoji: "🧘", title: "三个拉伸动作", energy: 8 },
+    { emoji: "🚶", title: "散步 15 分钟", energy: 12 },
+  ]},
+  { cat: "Nutrition", emoji: "🥗", items: [
+    { emoji: "💧", title: "喝一杯水", energy: 5 },
+    { emoji: "🍎", title: "吃一份水果", energy: 6 },
+  ]},
+  { cat: "Productivity", emoji: "🎯", items: [
+    { emoji: "📝", title: "列今日 3 件事", energy: 8 },
+    { emoji: "📚", title: "专注 25 分钟", energy: 15 },
+  ]},
+  { cat: "Self Kindness", emoji: "💛", items: [
+    { emoji: "🪞", title: "对自己说一句好话", energy: 8 },
+    { emoji: "🌿", title: "允许自己休息", energy: 6 },
+  ]},
+  { cat: "Sleep", emoji: "🌙", items: [
+    { emoji: "📵", title: "睡前放下手机", energy: 8 },
+    { emoji: "😴", title: "11 点前上床", energy: 10 },
+  ]},
+];
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -31,39 +74,27 @@ const seed: Task[] = [
 ];
 
 function HomePage() {
-  const [mode, setMode] = useState<"student" | "parent">("student");
+  const pet = usePet();
   const [emotionOpen, setEmotionOpen] = useState(false);
   return (
     <AppShell>
-      <ModeToggle mode={mode} setMode={setMode} onOpenEmotion={() => setEmotionOpen(true)} />
-      {mode === "student" ? <StudentHome /> : <ParentHome />}
+      <TopBar onOpenEmotion={() => setEmotionOpen(true)} />
+      {pet.mode === "parent" ? <ParentHome /> : <StudentHome />}
       <EmotionDialog open={emotionOpen} onClose={() => setEmotionOpen(false)} />
     </AppShell>
   );
 }
 
-function ModeToggle({ mode, setMode, onOpenEmotion }: { mode: "student" | "parent"; setMode: (m: "student" | "parent") => void; onOpenEmotion: () => void }) {
+function TopBar({ onOpenEmotion }: { onOpenEmotion: () => void }) {
+  const pet = usePet();
   return (
     <div className="sticky top-0 z-40 flex items-center justify-between gap-3 bg-background/85 px-4 py-2.5 backdrop-blur-md">
       <Link to="/settings" aria-label="设置" className="flex h-9 w-9 items-center justify-center rounded-full bg-card shadow-sm">
         <Settings className="h-4 w-4 text-foreground/70" />
       </Link>
-      <div className="flex rounded-full bg-card p-0.5 shadow-sm">
-        {[
-          { k: "student", label: "学生端" },
-          { k: "parent", label: "家长端" },
-        ].map((m) => (
-          <button
-            key={m.k}
-            onClick={() => setMode(m.k as "student" | "parent")}
-            className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition-all ${
-              mode === m.k ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-            }`}
-          >
-            {m.label}
-          </button>
-        ))}
-      </div>
+      <p className="text-sm font-bold">
+        {pet.name} <span className="text-muted-foreground">· {pet.personality ?? "小小星球"}</span>
+      </p>
       <div className="flex items-center gap-2">
         <Link to="/journal" aria-label="日签" className="flex h-9 w-9 items-center justify-center rounded-full bg-card shadow-sm">
           <CalendarDays className="h-4 w-4 text-primary" />
@@ -80,11 +111,13 @@ function StudentHome() {
   const pet = usePet();
   const palette = PET_COLORS.find((c) => c.key === pet.color) ?? PET_COLORS[0];
   const [tasks, setTasks] = useState(seed);
+  const [nextId, setNextId] = useState(seed.length + 1);
   const [exploding, setExploding] = useState<Set<number>>(new Set());
   const [showFireworks, setShowFireworks] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
   const fireworksTimer = useRef<ReturnType<typeof setTimeout>>(null);
   const visible = tasks.filter((t) => !t.done);
-  const totalToday = seed.length;
+  const totalToday = tasks.length;
   const done = totalToday - visible.length;
   const energy = tasks.filter((t) => t.done).reduce((s, t) => s + t.energy, 0);
 
@@ -99,6 +132,13 @@ function StudentHome() {
     }, 500);
   };
 
+  const addTask = (emoji: string, title: string, energy: number, cat: string) => {
+    if (!title.trim()) return;
+    setTasks((ts) => [...ts, { id: nextId, emoji, title: title.trim(), energy, done: false, cat }]);
+    setNextId((n) => n + 1);
+    setAddOpen(false);
+  };
+
   return (
     <div className="relative">
       <FireworksCanvas active={showFireworks} />
@@ -110,7 +150,7 @@ function StudentHome() {
         <button className="pill flex items-center gap-1 bg-card"><Share2 className="h-3.5 w-3.5 text-leaf" />分享</button>
       </div>
 
-      {/* Pet scene — no yellow frame, cuter chick */}
+      {/* Pet scene */}
       <div
         className="relative mt-2 h-64 w-full overflow-hidden"
         style={{ backgroundImage: `url(${sceneImg})`, backgroundSize: "cover", backgroundPosition: "center bottom" }}
@@ -118,7 +158,7 @@ function StudentHome() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
         <CuteChick emoji={palette.emoji} />
         <div className="absolute bottom-4 right-3 rounded-2xl bg-card/90 px-3 py-1.5 text-xs font-bold shadow-sm">
-          {pet.name} · Lv.4{pet.traits.length ? ` · ${pet.traits[0]}` : ""}
+          {pet.name} · Lv.4{pet.personality ? ` · ${pet.personality}` : ""}
         </div>
       </div>
 
@@ -152,12 +192,21 @@ function StudentHome() {
           <Link to="/journal" className="text-xs font-bold text-primary">查看日签 →</Link>
         </div>
         <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-secondary">
-          <div className="h-full rounded-full transition-all" style={{ width: `${(done / totalToday) * 100}%`, background: "var(--gradient-sun)" }} />
+          <div className="h-full rounded-full transition-all" style={{ width: `${totalToday ? (done / totalToday) * 100 : 0}%`, background: "var(--gradient-sun)" }} />
         </div>
       </section>
 
       <section className="mt-4 px-4">
-        <h3 className="mb-2 px-1 text-sm font-bold text-muted-foreground">🧘 健房 · 基础自我照亮</h3>
+        <div className="mb-2 flex items-center justify-between px-1">
+          <h3 className="text-sm font-bold text-muted-foreground">🧘 健房 · 基础自我照亮</h3>
+          <button
+            onClick={() => setAddOpen(true)}
+            aria-label="自定义打卡"
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm active:scale-90"
+          >
+            <Plus className="h-4 w-4" />
+          </button>
+        </div>
         {visible.length === 0 ? (
           <div className="card-pop p-4 text-center text-sm text-muted-foreground">
             今天的习惯都完成啦 🎉
@@ -194,6 +243,9 @@ function StudentHome() {
           </ul>
         )}
       </section>
+
+      {addOpen && <AddHabitSheet onClose={() => setAddOpen(false)} onAdd={addTask} />}
+
 
       {/* 自我觉察 — kept on home */}
       <section className="mt-5 px-4">
@@ -269,6 +321,102 @@ function CuteChick({ emoji }: { emoji: string }) {
     </div>
   );
 }
+
+function AddHabitSheet({
+  onClose,
+  onAdd,
+}: {
+  onClose: () => void;
+  onAdd: (emoji: string, title: string, energy: number, cat: string) => void;
+}) {
+  const [title, setTitle] = useState("");
+  const [emoji, setEmoji] = useState("✨");
+  const [cat, setCat] = useState("Easy Wins");
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 animate-fade-in"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md rounded-t-3xl bg-background p-5 pb-8 animate-slide-in-right"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-lg font-bold">自定义打卡</h3>
+          <button onClick={onClose} className="rounded-full p-1 active:scale-90" aria-label="关闭">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2 rounded-2xl bg-card p-2 ring-1 ring-border">
+          <input
+            value={emoji}
+            onChange={(e) => setEmoji(e.target.value.slice(0, 2) || "✨")}
+            className="w-12 rounded-xl bg-secondary py-2 text-center text-xl outline-none"
+            aria-label="emoji"
+          />
+          <input
+            autoFocus
+            value={title}
+            onChange={(e) => setTitle(e.target.value.slice(0, 20))}
+            placeholder="写下你的小习惯…"
+            className="flex-1 bg-transparent px-2 py-2 text-sm outline-none placeholder:text-muted-foreground"
+          />
+          <button
+            disabled={!title.trim()}
+            onClick={() => onAdd(emoji, title, 8, cat)}
+            className="rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground disabled:opacity-40"
+          >
+            添加
+          </button>
+        </div>
+
+        <p className="mt-5 px-1 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+          推荐类目
+        </p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {HABIT_SUGGESTIONS.map((c) => {
+            const on = c.cat === cat;
+            return (
+              <button
+                key={c.cat}
+                onClick={() => setCat(c.cat)}
+                className={`rounded-full px-3 py-1.5 text-xs font-bold ${
+                  on ? "bg-primary text-primary-foreground" : "bg-card text-foreground/70 ring-1 ring-border"
+                }`}
+              >
+                {c.emoji} {c.cat}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 max-h-[40vh] overflow-y-auto">
+          {(HABIT_SUGGESTIONS.find((c) => c.cat === cat) ?? HABIT_SUGGESTIONS[0]).items.map((it) => (
+            <button
+              key={it.title}
+              onClick={() => onAdd(it.emoji, it.title, it.energy, cat)}
+              className="mb-2 flex w-full items-center gap-3 rounded-2xl bg-card p-3 text-left ring-1 ring-border active:scale-[0.98]"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-xl">
+                {it.emoji}
+              </div>
+              <div className="flex-1">
+                <p className="font-bold text-sm">{it.title}</p>
+                <p className="mt-0.5 flex items-center gap-1 text-xs text-primary">
+                  <Sparkles className="h-3 w-3" /> +{it.energy} 能量
+                </p>
+              </div>
+              <Plus className="h-4 w-4 text-primary" />
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 function ParentHome() {
   return (
