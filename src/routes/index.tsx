@@ -6,9 +6,52 @@ import { usePet, PET_COLORS } from "@/lib/pet-store";
 import sceneImg from "@/assets/scene.jpg";
 import {
   Sparkles, Check, Settings, Share2, Smile, Volume2, MessageCircleHeart, Sparkle, Flame, Heart, Send,
-  CalendarDays, Clock, Rocket, NotebookPen,
+  CalendarDays, Clock, Rocket, NotebookPen, Plus, X,
 } from "lucide-react";
 import { useState, useRef } from "react";
+
+const HABIT_SUGGESTIONS: { cat: string; emoji: string; items: { emoji: string; title: string; energy: number }[] }[] = [
+  { cat: "Easy Wins", emoji: "⭐", items: [
+    { emoji: "🛏️", title: "整理床铺", energy: 5 },
+    { emoji: "🧦", title: "把袜子放好", energy: 3 },
+  ]},
+  { cat: "Gratitude", emoji: "🙏", items: [
+    { emoji: "💌", title: "写一件感谢的事", energy: 8 },
+    { emoji: "🤗", title: "对家人说谢谢", energy: 6 },
+  ]},
+  { cat: "Calm", emoji: "🧘", items: [
+    { emoji: "🌬️", title: "三个深呼吸", energy: 8 },
+    { emoji: "🕯️", title: "静坐 3 分钟", energy: 10 },
+  ]},
+  { cat: "Connection", emoji: "💗", items: [
+    { emoji: "📞", title: "给朋友发条消息", energy: 8 },
+    { emoji: "👨‍👩‍👧", title: "和家人聊 5 分钟", energy: 10 },
+  ]},
+  { cat: "Hygiene", emoji: "🧼", items: [
+    { emoji: "🪥", title: "认真刷牙", energy: 5 },
+    { emoji: "🚿", title: "洗澡", energy: 6 },
+  ]},
+  { cat: "Movement", emoji: "🏃", items: [
+    { emoji: "🧘", title: "三个拉伸动作", energy: 8 },
+    { emoji: "🚶", title: "散步 15 分钟", energy: 12 },
+  ]},
+  { cat: "Nutrition", emoji: "🥗", items: [
+    { emoji: "💧", title: "喝一杯水", energy: 5 },
+    { emoji: "🍎", title: "吃一份水果", energy: 6 },
+  ]},
+  { cat: "Productivity", emoji: "🎯", items: [
+    { emoji: "📝", title: "列今日 3 件事", energy: 8 },
+    { emoji: "📚", title: "专注 25 分钟", energy: 15 },
+  ]},
+  { cat: "Self Kindness", emoji: "💛", items: [
+    { emoji: "🪞", title: "对自己说一句好话", energy: 8 },
+    { emoji: "🌿", title: "允许自己休息", energy: 6 },
+  ]},
+  { cat: "Sleep", emoji: "🌙", items: [
+    { emoji: "📵", title: "睡前放下手机", energy: 8 },
+    { emoji: "😴", title: "11 点前上床", energy: 10 },
+  ]},
+];
 
 export const Route = createFileRoute("/")({
   head: () => ({
