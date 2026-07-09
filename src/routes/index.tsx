@@ -111,11 +111,13 @@ function StudentHome() {
   const pet = usePet();
   const palette = PET_COLORS.find((c) => c.key === pet.color) ?? PET_COLORS[0];
   const [tasks, setTasks] = useState(seed);
+  const [nextId, setNextId] = useState(seed.length + 1);
   const [exploding, setExploding] = useState<Set<number>>(new Set());
   const [showFireworks, setShowFireworks] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
   const fireworksTimer = useRef<ReturnType<typeof setTimeout>>(null);
   const visible = tasks.filter((t) => !t.done);
-  const totalToday = seed.length;
+  const totalToday = tasks.length;
   const done = totalToday - visible.length;
   const energy = tasks.filter((t) => t.done).reduce((s, t) => s + t.energy, 0);
 
@@ -130,6 +132,13 @@ function StudentHome() {
     }, 500);
   };
 
+  const addTask = (emoji: string, title: string, energy: number, cat: string) => {
+    if (!title.trim()) return;
+    setTasks((ts) => [...ts, { id: nextId, emoji, title: title.trim(), energy, done: false, cat }]);
+    setNextId((n) => n + 1);
+    setAddOpen(false);
+  };
+
   return (
     <div className="relative">
       <FireworksCanvas active={showFireworks} />
@@ -141,7 +150,7 @@ function StudentHome() {
         <button className="pill flex items-center gap-1 bg-card"><Share2 className="h-3.5 w-3.5 text-leaf" />分享</button>
       </div>
 
-      {/* Pet scene — no yellow frame, cuter chick */}
+      {/* Pet scene */}
       <div
         className="relative mt-2 h-64 w-full overflow-hidden"
         style={{ backgroundImage: `url(${sceneImg})`, backgroundSize: "cover", backgroundPosition: "center bottom" }}
@@ -149,7 +158,7 @@ function StudentHome() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
         <CuteChick emoji={palette.emoji} />
         <div className="absolute bottom-4 right-3 rounded-2xl bg-card/90 px-3 py-1.5 text-xs font-bold shadow-sm">
-          {pet.name} · Lv.4{pet.traits.length ? ` · ${pet.traits[0]}` : ""}
+          {pet.name} · Lv.4{pet.personality ? ` · ${pet.personality}` : ""}
         </div>
       </div>
 
@@ -183,12 +192,21 @@ function StudentHome() {
           <Link to="/journal" className="text-xs font-bold text-primary">查看日签 →</Link>
         </div>
         <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-secondary">
-          <div className="h-full rounded-full transition-all" style={{ width: `${(done / totalToday) * 100}%`, background: "var(--gradient-sun)" }} />
+          <div className="h-full rounded-full transition-all" style={{ width: `${totalToday ? (done / totalToday) * 100 : 0}%`, background: "var(--gradient-sun)" }} />
         </div>
       </section>
 
       <section className="mt-4 px-4">
-        <h3 className="mb-2 px-1 text-sm font-bold text-muted-foreground">🧘 健房 · 基础自我照亮</h3>
+        <div className="mb-2 flex items-center justify-between px-1">
+          <h3 className="text-sm font-bold text-muted-foreground">🧘 健房 · 基础自我照亮</h3>
+          <button
+            onClick={() => setAddOpen(true)}
+            aria-label="自定义打卡"
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm active:scale-90"
+          >
+            <Plus className="h-4 w-4" />
+          </button>
+        </div>
         {visible.length === 0 ? (
           <div className="card-pop p-4 text-center text-sm text-muted-foreground">
             今天的习惯都完成啦 🎉
@@ -225,6 +243,9 @@ function StudentHome() {
           </ul>
         )}
       </section>
+
+      {addOpen && <AddHabitSheet onClose={() => setAddOpen(false)} onAdd={addTask} />}
+
 
       {/* 自我觉察 — kept on home */}
       <section className="mt-5 px-4">
