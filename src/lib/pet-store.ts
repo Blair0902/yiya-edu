@@ -7,11 +7,12 @@ export type PetConfig = {
   name: string;
   color: string; // key from COLORS
   traits: string[];
-  personality?: string; // e.g. "温柔探索家"
-  personalityCode?: string; // e.g. "IFCP"
-  avatar?: string; // emoji chosen by personality
-  eggColor?: string; // egg base color key
-  eggPattern?: string; // egg pattern key
+  personality?: string;
+  personalityCode?: string;
+  avatar?: string; // fallback emoji
+  avatarImage?: string; // AI-generated pet image (data URL)
+  eggColor?: string;
+  eggPattern?: string;
   mode: PetMode;
 };
 
