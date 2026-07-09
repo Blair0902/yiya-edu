@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
-import { Settings, Flame, Sparkles, Calendar, Heart, ChevronRight, BookOpen, Trophy, Bell, PawPrint } from "lucide-react";
+import { Settings, Flame, Sparkles, Calendar, Heart, ChevronRight, BookOpen, Trophy, Bell, PawPrint, Zap } from "lucide-react";
 import { resetPet, usePet, PET_COLORS } from "@/lib/pet-store";
+import { useEnergyTotal } from "@/lib/energy-store";
 
 export const Route = createFileRoute("/me")({
   head: () => ({
