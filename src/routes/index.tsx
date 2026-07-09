@@ -232,28 +232,32 @@ function StudentHome() {
             {visible.map((t) => {
               const isBursting = exploding.has(t.id);
               return (
-                <li
+                <SwipeableTask
                   key={t.id}
-                  className={`card-pop flex items-center gap-3 p-3 transition-all duration-500 ${
-                    isBursting ? "scale-125 opacity-0 blur-sm" : ""
-                  }`}
+                  onDelete={() => removeTask(t.id)}
                 >
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-secondary text-xl">{t.emoji}</div>
-                  <div className="flex-1">
-                    <p className="font-bold">{t.title}</p>
-                    <span className="flex items-center gap-0.5 text-xs text-primary">
-                      <Sparkles className="h-3 w-3" /> +{t.energy} 能量
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => complete(t.id)}
-                    disabled={isBursting}
-                    aria-label="完成"
-                    className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-border bg-card text-transparent active:scale-90 active:border-primary active:bg-primary active:text-primary-foreground"
+                  <li
+                    className={`card-pop flex items-center gap-3 p-3 transition-all duration-500 ${
+                      isBursting ? "scale-125 opacity-0 blur-sm" : ""
+                    }`}
                   >
-                    <Check className="h-4 w-4" />
-                  </button>
-                </li>
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-secondary text-xl">{t.emoji}</div>
+                    <div className="flex-1">
+                      <p className="font-bold">{t.title}</p>
+                      <span className="flex items-center gap-0.5 text-xs text-primary">
+                        <Sparkles className="h-3 w-3" /> +{t.energy} 能量
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => complete(t.id)}
+                      disabled={isBursting}
+                      aria-label="完成"
+                      className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-border bg-card text-transparent active:scale-90 active:border-primary active:bg-primary active:text-primary-foreground"
+                    >
+                      <Check className="h-4 w-4" />
+                    </button>
+                  </li>
+                </SwipeableTask>
               );
             })}
           </ul>
