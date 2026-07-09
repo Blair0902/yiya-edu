@@ -254,13 +254,17 @@ function Challenges() {
                           </p>
                         </div>
                         <button
-                          onClick={() => handleCheckIn(active.key, gi, ii)}
+                          onClick={() =>
+                            it.game
+                              ? setGameCtx({ sKey: active.key, subIdx: gi, itemIdx: ii, item: it })
+                              : handleCheckIn(active.key, gi, ii)
+                          }
                           disabled={finished || isBursting}
                           className={`rounded-full px-3 py-1.5 text-sm font-bold transition-all ${
                             finished ? "bg-muted text-muted-foreground" : "bg-primary text-primary-foreground active:scale-95"
                           }`}
                         >
-                          {finished ? "已完成" : "打卡"}
+                          {finished ? "已完成" : it.game ? "开始" : "打卡"}
                         </button>
                       </div>
                       <div className="mt-3 h-2 overflow-hidden rounded-full bg-secondary">
