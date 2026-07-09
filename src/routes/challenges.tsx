@@ -21,6 +21,7 @@ export const Route = createFileRoute("/challenges")({
 type Item = {
   icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
   name: string; energy: number; done: number; total: number; color: string; tag?: string;
+  game?: GameId; intro?: string;
 };
 type Sub = { title: string; items: Item[] };
 type Section = { key: string; title: string; emoji: string; subs: Sub[] };
