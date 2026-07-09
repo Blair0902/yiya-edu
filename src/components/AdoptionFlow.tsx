@@ -303,7 +303,7 @@ export function AdoptionFlow() {
             <p className="mt-4 leading-relaxed text-foreground/70">{persona.desc}</p>
 
             <div className="mt-8 rounded-3xl bg-card p-5 shadow-sm">
-              <div className="text-6xl">{palette.emoji}</div>
+              <div className="text-7xl drop-shadow-[0_10px_20px_rgba(220,140,40,0.3)]">{persona.pet}</div>
               <p className="mt-2 text-lg font-bold">{name}</p>
               <p className="text-xs text-muted-foreground">{persona.title} · 和你一起成长</p>
             </div>
