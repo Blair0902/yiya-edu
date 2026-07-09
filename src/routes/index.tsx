@@ -322,6 +322,102 @@ function CuteChick({ emoji }: { emoji: string }) {
   );
 }
 
+function AddHabitSheet({
+  onClose,
+  onAdd,
+}: {
+  onClose: () => void;
+  onAdd: (emoji: string, title: string, energy: number, cat: string) => void;
+}) {
+  const [title, setTitle] = useState("");
+  const [emoji, setEmoji] = useState("✨");
+  const [cat, setCat] = useState("Easy Wins");
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 animate-fade-in"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md rounded-t-3xl bg-background p-5 pb-8 animate-slide-in-right"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-lg font-bold">自定义打卡</h3>
+          <button onClick={onClose} className="rounded-full p-1 active:scale-90" aria-label="关闭">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2 rounded-2xl bg-card p-2 ring-1 ring-border">
+          <input
+            value={emoji}
+            onChange={(e) => setEmoji(e.target.value.slice(0, 2) || "✨")}
+            className="w-12 rounded-xl bg-secondary py-2 text-center text-xl outline-none"
+            aria-label="emoji"
+          />
+          <input
+            autoFocus
+            value={title}
+            onChange={(e) => setTitle(e.target.value.slice(0, 20))}
+            placeholder="写下你的小习惯…"
+            className="flex-1 bg-transparent px-2 py-2 text-sm outline-none placeholder:text-muted-foreground"
+          />
+          <button
+            disabled={!title.trim()}
+            onClick={() => onAdd(emoji, title, 8, cat)}
+            className="rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground disabled:opacity-40"
+          >
+            添加
+          </button>
+        </div>
+
+        <p className="mt-5 px-1 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+          推荐类目
+        </p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {HABIT_SUGGESTIONS.map((c) => {
+            const on = c.cat === cat;
+            return (
+              <button
+                key={c.cat}
+                onClick={() => setCat(c.cat)}
+                className={`rounded-full px-3 py-1.5 text-xs font-bold ${
+                  on ? "bg-primary text-primary-foreground" : "bg-card text-foreground/70 ring-1 ring-border"
+                }`}
+              >
+                {c.emoji} {c.cat}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 max-h-[40vh] overflow-y-auto">
+          {(HABIT_SUGGESTIONS.find((c) => c.cat === cat) ?? HABIT_SUGGESTIONS[0]).items.map((it) => (
+            <button
+              key={it.title}
+              onClick={() => onAdd(it.emoji, it.title, it.energy, cat)}
+              className="mb-2 flex w-full items-center gap-3 rounded-2xl bg-card p-3 text-left ring-1 ring-border active:scale-[0.98]"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-xl">
+                {it.emoji}
+              </div>
+              <div className="flex-1">
+                <p className="font-bold text-sm">{it.title}</p>
+                <p className="mt-0.5 flex items-center gap-1 text-xs text-primary">
+                  <Sparkles className="h-3 w-3" /> +{it.energy} 能量
+                </p>
+              </div>
+              <Plus className="h-4 w-4 text-primary" />
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 function ParentHome() {
   return (
     <div className="px-4 pt-2">
