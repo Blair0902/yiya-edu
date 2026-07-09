@@ -44,7 +44,7 @@ const initial: Section[] = [
             icon: Calculator, name: "数学 · 754 每日练习", energy: 18, done: 0, total: 1, color: "oklch(0.82 0.13 230)",
             game: "math754",
             intro:
-              "在 7 分钟内完成 5 道 4 位数相乘的竖式练习。通过限时计算打磨细心度和心理韧性，提升运算速度、准确率，夯实数学计算基础。",
+              "在 7 分钟内完成 5 道 4 位数相乘的竖式练习。内置全屏草稿本可手写演算竖式，通过限时计算打磨细心度和心理韧性，提升运算速度、准确率，夯实数学计算基础。",
           },
           {
             icon: Languages, name: "英语 · 单词成文", energy: 20, done: 0, total: 1, color: "oklch(0.82 0.14 150)", tag: "AI",
