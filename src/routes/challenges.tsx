@@ -114,6 +114,7 @@ function Challenges() {
   const [exploding, setExploding] = useState<Set<string>>(new Set());
   const [completed, setCompleted] = useState<Completed[]>([]);
   const [showBox, setShowBox] = useState(false);
+  const [gameCtx, setGameCtx] = useState<{ sKey: string; subIdx: number; itemIdx: number; item: Item } | null>(null);
   const fireworksTimer = useRef<ReturnType<typeof setTimeout>>(null);
 
   const removeItem = (name: string, doneItem: Completed) => {
