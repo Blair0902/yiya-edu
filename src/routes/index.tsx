@@ -153,7 +153,7 @@ function StudentHome() {
       {/* status pills */}
       <div className="flex items-center justify-center gap-2 px-4 pt-1">
         <span className="pill flex items-center gap-1 bg-card"><Flame className="h-3.5 w-3.5 text-primary" />12 天</span>
-        <span className="pill flex items-center gap-1 bg-card"><Sparkles className="h-3.5 w-3.5 text-primary" />{420 + energy}</span>
+        <Link to="/energy" className="pill flex items-center gap-1 bg-card active:scale-95"><Sparkles className="h-3.5 w-3.5 text-primary" />{energyTotal}</Link>
         <button className="pill flex items-center gap-1 bg-card"><Share2 className="h-3.5 w-3.5 text-leaf" />分享</button>
       </div>
 
