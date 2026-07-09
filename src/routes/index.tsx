@@ -151,6 +151,10 @@ function StudentHome() {
     setAddOpen(false);
   };
 
+  const removeTask = (id: number) => {
+    setTasks((ts) => ts.filter((t) => t.id !== id));
+  };
+
   return (
     <div className="relative">
       <FireworksCanvas active={showFireworks} />
