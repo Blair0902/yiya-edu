@@ -101,6 +101,7 @@ export function AdoptionFlow() {
       traits: [],
       personality: persona.title,
       personalityCode: code,
+      avatar: persona.pet,
       mode: "student",
     });
   };
