@@ -121,6 +121,8 @@ function StudentHome() {
   const totalToday = tasks.length;
   const done = totalToday - visible.length;
   const energy = tasks.filter((t) => t.done).reduce((s, t) => s + t.energy, 0);
+  const energyTotal = useEnergyTotal();
+  void energy;
 
   const complete = (id: number) => {
     const task = tasks.find((t) => t.id === id);
