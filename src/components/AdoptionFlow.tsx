@@ -190,6 +190,10 @@ export function AdoptionFlow() {
   const [answers, setAnswers] = useState<string[]>([]);
   const [eggColor, setEggColor] = useState<string>("sun");
   const [eggPattern, setEggPattern] = useState<string>("dots");
+  const [petImage, setPetImage] = useState<string | null>(null);
+  const [imgFinal, setImgFinal] = useState(false);
+  const [imgError, setImgError] = useState<string | null>(null);
+  const genStartedRef = useRef(false);
 
   // splash auto → egg
   useEffect(() => {
@@ -206,6 +210,35 @@ export function AdoptionFlow() {
     return () => clearTimeout(t);
   }, [phase]);
 
+  const code = answers.join("");
+  const persona = PERSONAS[code] ?? PERSONAS.IFCP;
+
+  // Kick off pet image generation as soon as hatching starts.
+  useEffect(() => {
+    if (phase !== "hatching" || genStartedRef.current) return;
+    genStartedRef.current = true;
+    const colorLabel = EGG_COLORS.find((c) => c.key === eggColor)?.label ?? "";
+    const patternLabel = EGG_PATTERNS.find((p) => p.key === eggPattern)?.label ?? "";
+    const displayName = (name.trim() || "豆豆");
+    const prompt = [
+      `A single adorable cartoon creature companion character named "${displayName}",`,
+      `inspired by a hatched egg with a ${colorLabel} base color and a ${patternLabel} pattern —`,
+      `the creature's fur/skin color and body markings should echo that egg's palette and motif.`,
+      `Personality archetype: ${persona.title} (${persona.desc}).`,
+      `Style: soft chibi mascot, big glossy eyes, round friendly body, gentle pastel colors,`,
+      `clean vector-like shading, subtle drop shadow, plain off-white background, centered composition,`,
+      `no text, no watermark, no border.`,
+    ].join(" ");
+
+    streamImage("/api/generate-pet", prompt, (dataUrl, isFinal) => {
+      setPetImage(dataUrl);
+      if (isFinal) setImgFinal(true);
+    }).catch((e) => {
+      setImgError(String(e?.message ?? e));
+      setImgFinal(true);
+    });
+  }, [phase, eggColor, eggPattern, name, persona.title, persona.desc]);
+
   if (pet.adopted) return null;
 
   const chooseAnswer = (letter: string) => {
@@ -218,9 +251,6 @@ export function AdoptionFlow() {
     }
   };
 
-  const code = answers.join("");
-  const persona = PERSONAS[code] ?? PERSONAS.IFCP;
-
   const finish = () => {
     savePet({
       adopted: true,
@@ -230,6 +260,7 @@ export function AdoptionFlow() {
       personality: persona.title,
       personalityCode: code,
       avatar: persona.pet,
+      avatarImage: imgFinal && petImage ? petImage : undefined,
       eggColor,
       eggPattern,
       mode: "student",
