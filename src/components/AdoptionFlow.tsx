@@ -490,11 +490,32 @@ export function AdoptionFlow() {
             <p className="mt-4 leading-relaxed text-foreground/70">{persona.desc}</p>
 
             <div className="mt-6 rounded-3xl bg-card p-5 shadow-sm">
-              <div className="text-7xl animate-[scale-in_0.5s_ease-out] drop-shadow-[0_10px_20px_rgba(220,140,40,0.3)]">
-                {persona.pet}
+              <div className="relative mx-auto flex h-48 w-48 items-center justify-center overflow-hidden rounded-2xl bg-secondary">
+                {petImage ? (
+                  <img
+                    src={petImage}
+                    alt={name}
+                    className={`h-full w-full object-cover transition-[filter] duration-500 ${
+                      imgFinal ? "blur-0" : "blur-xl"
+                    }`}
+                  />
+                ) : (
+                  <div className="text-6xl opacity-40">{persona.pet}</div>
+                )}
+                {!imgFinal && !imgError && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/10 backdrop-blur-sm">
+                    <div className="flex flex-col items-center gap-2 rounded-2xl bg-card/90 px-4 py-3 shadow">
+                      <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                      <p className="text-[11px] font-bold text-foreground/70">正在为 ta 画像…</p>
+                    </div>
+                  </div>
+                )}
               </div>
-              <p className="mt-2 text-lg font-bold">{name}</p>
+              <p className="mt-3 text-lg font-bold">{name}</p>
               <p className="text-xs text-muted-foreground">{persona.title} · 和你一起成长</p>
+              {imgError && (
+                <p className="mt-2 text-[11px] text-muted-foreground">生成失败，将使用默认形象</p>
+              )}
             </div>
 
             <div className="mt-auto flex gap-2 pt-6">
