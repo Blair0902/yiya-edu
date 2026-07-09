@@ -16,11 +16,11 @@ export const Route = createFileRoute("/me")({
 
 const stats = [
   { icon: Flame, label: "连续打卡", value: "12 天", color: "var(--berry)" },
-  { icon: Sparkles, label: "总能量", value: "1,420", color: "var(--primary)" },
   { icon: Trophy, label: "完成挑战", value: "37", color: "var(--sun)" },
 ];
 
 const menu = [
+  { icon: Zap, label: "能量账本", to: "/energy" as const, desc: "每次打卡的能量明细", accent: true },
   { icon: Calendar, label: "情绪日历", to: "/emotion" as const, desc: "看见每天的感受" },
   { icon: Heart, label: "我的微言", to: "/weiyan" as const, desc: "对内心说的话" },
   { icon: BookOpen, label: "成长数据看板", to: "/me" as const, desc: "行为·想法·感受·需求" },
@@ -28,6 +28,7 @@ const menu = [
 ];
 
 function Me() {
+  const energyTotal = useEnergyTotal();
   return (
     <AppShell bgClass="bg-gradient-to-b from-[oklch(0.92_0.07_45)] to-background">
       <header className="flex items-center justify-between px-5 pt-8">
