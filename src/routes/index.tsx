@@ -10,7 +10,7 @@ import {
   Sparkles, Check, Settings, Share2, Smile, Volume2, MessageCircleHeart, Sparkle, Flame, Heart, Send,
   CalendarDays, Clock, Rocket, NotebookPen, Plus, X, Trash2,
 } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, type ReactNode } from "react";
 
 const HABIT_SUGGESTIONS: { cat: string; emoji: string; items: { emoji: string; title: string; energy: number }[] }[] = [
   { cat: "Easy Wins", emoji: "⭐", items: [
