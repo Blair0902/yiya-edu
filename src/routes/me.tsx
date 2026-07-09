@@ -145,14 +145,27 @@ function PetSettings() {
             {pet.traits.length ? pet.traits.join(" · ") : "还没有性格标签"}
           </p>
         </div>
-        <button
-          onClick={() => {
-            if (confirm("重新自定义宠物名字和外观？")) resetPet();
-          }}
-          className="rounded-full bg-secondary px-3 py-1.5 text-xs font-bold"
-        >
-          重新自定义
-        </button>
+        <div className="flex flex-col gap-1.5">
+          <button
+            onClick={() => {
+              if (confirm("重放开屏动画并重新领养宠物？（当前宠物设置会被清空）")) {
+                resetPet();
+                window.location.href = "/";
+              }
+            }}
+            className="rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground"
+          >
+            重放开屏
+          </button>
+          <button
+            onClick={() => {
+              if (confirm("重新自定义宠物名字和外观？")) resetPet();
+            }}
+            className="rounded-full bg-secondary px-3 py-1.5 text-xs font-bold"
+          >
+            重新自定义
+          </button>
+        </div>
       </div>
     </section>
   );
