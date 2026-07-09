@@ -35,10 +35,10 @@ const initial: Section[] = [
         title: "学科能力",
         items: [
           {
-            icon: Scroll, name: "古诗文 · 智能背诵", energy: 25, done: 0, total: 1, color: "oklch(0.8 0.13 60)", tag: "AI",
+            icon: Scroll, name: "古诗文 · 高考名篇", energy: 25, done: 0, total: 1, color: "oklch(0.8 0.13 60)", tag: "AI",
             game: "poetry",
             intro:
-              "覆盖中考古诗文阅读、高考古代诗文阅读全部课内必考篇目，包含文言文、古诗词两大核心内容。可自主选择教材及篇目，通过智能出题和周期性滚动复习，解决古诗文背诵及理解问题，对接默写、文言文翻译、诗词鉴赏等题型，稳步提升语文古诗文板块分值。",
+              "覆盖高考必背古诗文名篇，包含文言文与古诗词。多种游戏形式：句子填空、下一句选择、认作者、品诗意。通过智能出题和周期性滚动复习，稳步提升语文古诗文板块分值，对接默写、翻译、鉴赏题型。",
           },
           {
             icon: Calculator, name: "数学 · 754 每日练习", energy: 18, done: 0, total: 1, color: "oklch(0.82 0.13 230)",
