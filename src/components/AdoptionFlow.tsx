@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePet, savePet } from "@/lib/pet-store";
-import { Sparkles, ArrowRight, SkipForward, Check } from "lucide-react";
+import { streamImage } from "@/lib/streamImage";
+import { Sparkles, ArrowRight, SkipForward, Check, Loader2 } from "lucide-react";
 
 type Axis = "I" | "F" | "C" | "P";
 type QOpt = { label: string; emoji: string; axis: Axis; opposite: string };
@@ -189,6 +190,10 @@ export function AdoptionFlow() {
   const [answers, setAnswers] = useState<string[]>([]);
   const [eggColor, setEggColor] = useState<string>("sun");
   const [eggPattern, setEggPattern] = useState<string>("dots");
+  const [petImage, setPetImage] = useState<string | null>(null);
+  const [imgFinal, setImgFinal] = useState(false);
+  const [imgError, setImgError] = useState<string | null>(null);
+  const genStartedRef = useRef(false);
 
   // splash auto → egg
   useEffect(() => {
@@ -205,6 +210,35 @@ export function AdoptionFlow() {
     return () => clearTimeout(t);
   }, [phase]);
 
+  const code = answers.join("");
+  const persona = PERSONAS[code] ?? PERSONAS.IFCP;
+
+  // Kick off pet image generation as soon as hatching starts.
+  useEffect(() => {
+    if (phase !== "hatching" || genStartedRef.current) return;
+    genStartedRef.current = true;
+    const colorLabel = EGG_COLORS.find((c) => c.key === eggColor)?.label ?? "";
+    const patternLabel = EGG_PATTERNS.find((p) => p.key === eggPattern)?.label ?? "";
+    const displayName = (name.trim() || "豆豆");
+    const prompt = [
+      `A single adorable cartoon creature companion character named "${displayName}",`,
+      `inspired by a hatched egg with a ${colorLabel} base color and a ${patternLabel} pattern —`,
+      `the creature's fur/skin color and body markings should echo that egg's palette and motif.`,
+      `Personality archetype: ${persona.title} (${persona.desc}).`,
+      `Style: soft chibi mascot, big glossy eyes, round friendly body, gentle pastel colors,`,
+      `clean vector-like shading, subtle drop shadow, plain off-white background, centered composition,`,
+      `no text, no watermark, no border.`,
+    ].join(" ");
+
+    streamImage("/api/generate-pet", prompt, (dataUrl, isFinal) => {
+      setPetImage(dataUrl);
+      if (isFinal) setImgFinal(true);
+    }).catch((e) => {
+      setImgError(String(e?.message ?? e));
+      setImgFinal(true);
+    });
+  }, [phase, eggColor, eggPattern, name, persona.title, persona.desc]);
+
   if (pet.adopted) return null;
 
   const chooseAnswer = (letter: string) => {
@@ -217,9 +251,6 @@ export function AdoptionFlow() {
     }
   };
 
-  const code = answers.join("");
-  const persona = PERSONAS[code] ?? PERSONAS.IFCP;
-
   const finish = () => {
     savePet({
       adopted: true,
@@ -229,6 +260,7 @@ export function AdoptionFlow() {
       personality: persona.title,
       personalityCode: code,
       avatar: persona.pet,
+      avatarImage: imgFinal && petImage ? petImage : undefined,
       eggColor,
       eggPattern,
       mode: "student",
@@ -458,11 +490,32 @@ export function AdoptionFlow() {
             <p className="mt-4 leading-relaxed text-foreground/70">{persona.desc}</p>
 
             <div className="mt-6 rounded-3xl bg-card p-5 shadow-sm">
-              <div className="text-7xl animate-[scale-in_0.5s_ease-out] drop-shadow-[0_10px_20px_rgba(220,140,40,0.3)]">
-                {persona.pet}
+              <div className="relative mx-auto flex h-48 w-48 items-center justify-center overflow-hidden rounded-2xl bg-secondary">
+                {petImage ? (
+                  <img
+                    src={petImage}
+                    alt={name}
+                    className={`h-full w-full object-cover transition-[filter] duration-500 ${
+                      imgFinal ? "blur-0" : "blur-xl"
+                    }`}
+                  />
+                ) : (
+                  <div className="text-6xl opacity-40">{persona.pet}</div>
+                )}
+                {!imgFinal && !imgError && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/10 backdrop-blur-sm">
+                    <div className="flex flex-col items-center gap-2 rounded-2xl bg-card/90 px-4 py-3 shadow">
+                      <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                      <p className="text-[11px] font-bold text-foreground/70">正在为 ta 画像…</p>
+                    </div>
+                  </div>
+                )}
               </div>
-              <p className="mt-2 text-lg font-bold">{name}</p>
+              <p className="mt-3 text-lg font-bold">{name}</p>
               <p className="text-xs text-muted-foreground">{persona.title} · 和你一起成长</p>
+              {imgError && (
+                <p className="mt-2 text-[11px] text-muted-foreground">生成失败，将使用默认形象</p>
+              )}
             </div>
 
             <div className="mt-auto flex gap-2 pt-6">
@@ -474,9 +527,10 @@ export function AdoptionFlow() {
               </button>
               <button
                 onClick={finish}
-                className="flex flex-1 items-center justify-center gap-1 rounded-2xl bg-primary py-3 font-bold text-primary-foreground shadow-lg"
+                disabled={!imgFinal}
+                className="flex flex-1 items-center justify-center gap-1 rounded-2xl bg-primary py-3 font-bold text-primary-foreground shadow-lg disabled:opacity-50"
               >
-                <Sparkles className="h-4 w-4" /> 带 {name} 回家
+                <Sparkles className="h-4 w-4" /> {imgFinal ? `带 ${name} 回家` : "正在生成…"}
               </button>
             </div>
           </div>

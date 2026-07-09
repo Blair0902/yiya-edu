@@ -20,6 +20,7 @@ import { Route as EnergyRouteImport } from './routes/energy'
 import { Route as EmotionRouteImport } from './routes/emotion'
 import { Route as ChallengesRouteImport } from './routes/challenges'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiGeneratePetRouteImport } from './routes/api/generate-pet'
 
 const WeiyanRoute = WeiyanRouteImport.update({
   id: '/weiyan',
@@ -76,6 +77,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGeneratePetRoute = ApiGeneratePetRouteImport.update({
+  id: '/api/generate-pet',
+  path: '/api/generate-pet',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/weiyan': typeof WeiyanRoute
+  '/api/generate-pet': typeof ApiGeneratePetRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/weiyan': typeof WeiyanRoute
+  '/api/generate-pet': typeof ApiGeneratePetRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/weiyan': typeof WeiyanRoute
+  '/api/generate-pet': typeof ApiGeneratePetRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/shop'
     | '/weiyan'
+    | '/api/generate-pet'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/shop'
     | '/weiyan'
+    | '/api/generate-pet'
   id:
     | '__root__'
     | '/'
@@ -157,6 +168,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/shop'
     | '/weiyan'
+    | '/api/generate-pet'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -171,6 +183,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   ShopRoute: typeof ShopRoute
   WeiyanRoute: typeof WeiyanRoute
+  ApiGeneratePetRoute: typeof ApiGeneratePetRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -252,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/generate-pet': {
+      id: '/api/generate-pet'
+      path: '/api/generate-pet'
+      fullPath: '/api/generate-pet'
+      preLoaderRoute: typeof ApiGeneratePetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -267,6 +287,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   ShopRoute: ShopRoute,
   WeiyanRoute: WeiyanRoute,
+  ApiGeneratePetRoute: ApiGeneratePetRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
