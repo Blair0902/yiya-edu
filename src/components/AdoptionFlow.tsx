@@ -229,11 +229,6 @@ export function AdoptionFlow() {
         {/* --- NAME --- */}
         {phase === "name" && (
           <div className="flex flex-1 flex-col">
-            <div className="mb-4 flex gap-1.5">
-              <div className="h-1.5 flex-1 rounded-full bg-primary" />
-              <div className="h-1.5 flex-1 rounded-full bg-card" />
-              <div className="h-1.5 flex-1 rounded-full bg-card" />
-            </div>
             <h2 className="mt-6 text-2xl">给 ta 起个名字吧</h2>
             <p className="mt-1 text-sm text-foreground/60">这个名字会陪伴你们很久</p>
             <div className="mt-8 flex justify-center text-7xl">{palette.emoji}</div>
