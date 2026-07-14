@@ -13,7 +13,8 @@ const KEY = "doudou.energy.ledger";
 const BASE = 420;
 
 const listeners = new Set<() => void>();
-let cache: EnergyEntry[] = [];
+const EMPTY: EnergyEntry[] = [];
+let cache: EnergyEntry[] = EMPTY;
 let loaded = false;
 
 function loadFromStorage(): EnergyEntry[] {
@@ -67,7 +68,7 @@ export function clearEnergy() {
   persist([]);
 }
 export function useEnergyLedger(): EnergyEntry[] {
-  return useSyncExternalStore(subscribe, read, () => []);
+  return useSyncExternalStore(subscribe, read, () => EMPTY);
 }
 export function useEnergyTotal(): number {
   const list = useEnergyLedger();
