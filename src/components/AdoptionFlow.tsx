@@ -226,7 +226,8 @@ export function AdoptionFlow() {
       `the creature's fur/skin color and body markings should echo that egg's palette and motif.`,
       `Personality archetype: ${persona.title} (${persona.desc}).`,
       `Style: soft chibi mascot, big glossy eyes, round friendly body, gentle pastel colors,`,
-      `clean vector-like shading, subtle drop shadow, plain off-white background, centered composition,`,
+      `clean vector-like shading, centered composition,`,
+      `fully transparent background (alpha channel, no backdrop, no ground shadow, no scenery),`,
       `no text, no watermark, no border.`,
     ].join(" ");
 
@@ -495,7 +496,7 @@ export function AdoptionFlow() {
                   <img
                     src={petImage}
                     alt={name}
-                    className={`h-full w-full object-cover transition-[filter] duration-500 ${
+                    className={`h-full w-full object-contain transition-[filter] duration-500 ${
                       imgFinal ? "blur-0" : "blur-xl"
                     }`}
                   />
