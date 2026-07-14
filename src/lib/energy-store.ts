@@ -68,7 +68,7 @@ export function clearEnergy() {
   persist([]);
 }
 export function useEnergyLedger(): EnergyEntry[] {
-  return useSyncExternalStore(subscribe, read, () => []);
+  return useSyncExternalStore(subscribe, read, () => EMPTY);
 }
 export function useEnergyTotal(): number {
   const list = useEnergyLedger();
