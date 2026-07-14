@@ -381,7 +381,8 @@ function CuteChick({ emoji, image }: { emoji: string; image?: string }) {
           <img
             src={image}
             alt="pet"
-            className="relative h-40 w-40 rounded-full object-cover drop-shadow-[0_8px_18px_rgba(220,140,40,0.35)] animate-[bounce_2.6s_ease-in-out_infinite]"
+            style={{ mixBlendMode: "multiply" }}
+            className="relative h-40 w-40 object-contain drop-shadow-[0_8px_18px_rgba(220,140,40,0.35)] animate-[bounce_2.6s_ease-in-out_infinite]"
           />
         ) : (
           <div className="relative text-[7.5rem] drop-shadow-[0_8px_18px_rgba(220,140,40,0.35)] animate-[bounce_2.6s_ease-in-out_infinite]">
