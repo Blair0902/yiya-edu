@@ -13,7 +13,8 @@ const KEY = "doudou.energy.ledger";
 const BASE = 420;
 
 const listeners = new Set<() => void>();
-let cache: EnergyEntry[] = [];
+const EMPTY: EnergyEntry[] = [];
+let cache: EnergyEntry[] = EMPTY;
 let loaded = false;
 
 function loadFromStorage(): EnergyEntry[] {
