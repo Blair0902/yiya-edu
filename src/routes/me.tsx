@@ -133,8 +133,12 @@ function PetSettings() {
   return (
     <section className="mt-4 px-4">
       <div className="card-pop flex items-center gap-3 p-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl text-3xl" style={{ background: palette.bg }}>
-          {palette.emoji}
+        <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl text-3xl" style={{ background: palette.bg }}>
+          {pet.avatarImage ? (
+            <img src={pet.avatarImage} alt={pet.name} className="h-full w-full object-contain" style={{ mixBlendMode: "multiply" }} />
+          ) : (
+            palette.emoji
+          )}
         </div>
         <div className="flex-1">
           <p className="flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-primary">
