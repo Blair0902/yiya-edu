@@ -20,6 +20,8 @@ export const Route = createFileRoute("/api/generate-pet")({
               model: "openai/gpt-image-1-mini",
               prompt,
               quality: "low",
+              background: "transparent",
+              output_format: "png",
               stream: true,
               partial_images: 2,
             }),
