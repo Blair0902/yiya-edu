@@ -496,7 +496,7 @@ export function AdoptionFlow() {
                   <img
                     src={petImage}
                     alt={name}
-                    className={`h-full w-full object-cover transition-[filter] duration-500 ${
+                    className={`h-full w-full object-contain transition-[filter] duration-500 ${
                       imgFinal ? "blur-0" : "blur-xl"
                     }`}
                   />
