@@ -97,8 +97,19 @@ const initial: Section[] = [
       {
         title: "对话",
         items: [
-          { icon: Clock, name: "与 6 岁的自己对话", energy: 25, done: 0, total: 1, color: "oklch(0.78 0.13 60)", tag: "历史" },
-          { icon: Rocket, name: "与 30 岁的自己对话", energy: 25, done: 0, total: 1, color: "oklch(0.72 0.16 280)", tag: "未来" },
+          {
+            icon: Clock, name: "与 6 岁的自己对话", energy: 25, done: 0, total: 1, color: "oklch(0.78 0.13 60)", tag: "AI",
+            game: "talk6",
+            intro:
+              "回到童年的院子，和 6 岁的自己聊一聊。TA 会用小朋友天真的口气回应你，帮你重新看见那些被大人遗忘的心情。至少交流 3 轮即可完成打卡。",
+          },
+          {
+            icon: Rocket, name: "与 30 岁的自己对话", energy: 25, done: 0, total: 1, color: "oklch(0.72 0.16 280)", tag: "AI",
+            game: "talk30",
+            intro:
+              "去未来见见 30 岁的自己。TA 会用温柔而坚定的语气回应你当下的困惑，分享一份走过弯路后的经验与视角。至少交流 3 轮即可完成打卡。",
+          },
+
         ],
       },
     ],
