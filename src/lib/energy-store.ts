@@ -4,7 +4,7 @@ export type EnergyEntry = {
   id: string;
   name: string;
   energy: number;
-  source: "习惯" | "挑战" | "其它";
+  source: "习惯" | "挑战" | "觉察" | "跨时空" | "其它";
   emoji?: string;
   at: number; // ms epoch
 };
