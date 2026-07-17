@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "sdk_version": "0.23.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "doudou-planet-mcp",
+      "version": "0.1.0",
+      "title": "豆豆星球 MCP"
+    },
+    "tools": [
+      {
+        "name": "list_pet_colors",
+        "title": "列出宠物蛋颜色",
+        "description": "返回豆豆星球中所有可选的宠物蛋颜色及其气质提示。",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_pet_traits",
+        "title": "列出宠物性格特质",
+        "description": "返回豆豆星球领养流程中可选的性格特质词。",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "suggest_pet_persona",
+        "title": "推荐宠物人格",
+        "description": "根据用户选择的性格特质数组,推荐一个匹配的宠物人格标签与一句性格描述。纯函数,不读写任何用户数据。",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "traits": {
+              "minItems": 0,
+              "maxItems": 8,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "性格特质数组,取值来自 list_pet_traits 的结果。"
+            }
+          },
+          "required": [
+            "traits"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_daily_challenges",
+        "title": "列出每日挑战",
+        "description": "返回豆豆星球内置的每日挑战列表,可用于外部客户端展示或规划。",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
