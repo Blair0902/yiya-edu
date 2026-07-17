@@ -7,7 +7,10 @@ export type GameId =
   | "english"
   | "why"
   | "hats"
-  | "schulte";
+  | "schulte"
+  | "talk6"
+  | "talk30";
+
 
 type Props = {
   gameId: GameId;
@@ -101,7 +104,10 @@ function GameBody({ gameId, color, onFinish }: { gameId: GameId; color: string; 
   if (gameId === "english") return <English color={color} onFinish={onFinish} />;
   if (gameId === "why") return <WhyGame color={color} onFinish={onFinish} />;
   if (gameId === "hats") return <SixHats color={color} onFinish={onFinish} />;
+  if (gameId === "talk6") return <TimeChat color={color} age="6" onFinish={onFinish} />;
+  if (gameId === "talk30") return <TimeChat color={color} age="30" onFinish={onFinish} />;
   return <Schulte color={color} onFinish={onFinish} />;
+
 }
 
 /* -------- 754 数学 · 4 位数竖式练习 + 全屏草稿本 -------- */
@@ -734,3 +740,152 @@ function Schulte({ color, onFinish }: { color: string; onFinish: () => void }) {
     </div>
   );
 }
+
+/* -------- 与 6 岁 / 30 岁的自己对话 (AI) -------- */
+type ChatMsg = { role: "user" | "assistant"; content: string };
+
+const OPENERS: Record<"6" | "30", string> = {
+  "6": "嗨呀～是长大的我吗？我在小时候的院子里等你好久啦！你今天开心吗？",
+  "30": "嘿，是你呀。坐下来喝口水，慢慢说——今天心里在想什么？",
+};
+const HINTS: Record<"6" | "30", string[]> = {
+  "6": ["还记得我最喜欢的玩具吗？", "你现在还怕黑吗？", "你有没有交到新朋友？"],
+  "30": ["我最近有件事拿不定主意…", "我担心自己不够好。", "如果你能重来一次，会怎么做？"],
+};
+
+function TimeChat({
+  color,
+  age,
+  onFinish,
+}: {
+  color: string;
+  age: "6" | "30";
+  onFinish: () => void;
+}) {
+  const [msgs, setMsgs] = useState<ChatMsg[]>([
+    { role: "assistant", content: OPENERS[age] },
+  ]);
+  const [text, setText] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const label = age === "6" ? "6 岁的我" : "30 岁的我";
+  const turns = msgs.filter((m) => m.role === "user").length;
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [msgs, loading]);
+
+  const send = async (raw?: string) => {
+    const content = (raw ?? text).trim();
+    if (!content || loading) return;
+    const next: ChatMsg[] = [...msgs, { role: "user", content }];
+    setMsgs(next);
+    setText("");
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/time-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ age, messages: next }),
+      });
+      if (res.status === 429) throw new Error("对话太热烈啦～稍等一下再说");
+      if (res.status === 402) throw new Error("今天的对话额度用完了，明天再来吧");
+      if (!res.ok) throw new Error("网络有点小情绪，重试一下～");
+      const data = (await res.json()) as { reply: string };
+      setMsgs((m) => [...m, { role: "assistant", content: data.reply }]);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "出错了");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
+        <span>正在对话：<span className="font-bold" style={{ color }}>{label}</span></span>
+        <span>已交流 {turns} 轮</span>
+      </div>
+      <div
+        ref={scrollRef}
+        className="flex max-h-72 min-h-[16rem] flex-col gap-2 overflow-y-auto rounded-2xl bg-card p-3"
+      >
+        {msgs.map((m, i) => (
+          <div
+            key={i}
+            className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap ${
+              m.role === "user"
+                ? "self-end bg-primary text-primary-foreground"
+                : "self-start bg-background"
+            }`}
+            style={m.role === "assistant" ? { borderLeft: `3px solid ${color}` } : undefined}
+          >
+            {m.content}
+          </div>
+        ))}
+        {loading && (
+          <div
+            className="self-start rounded-2xl bg-background px-3 py-2 text-sm text-muted-foreground"
+            style={{ borderLeft: `3px solid ${color}` }}
+          >
+            <span className="inline-flex gap-1">
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground" style={{ animationDelay: "0ms" }} />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground" style={{ animationDelay: "150ms" }} />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground" style={{ animationDelay: "300ms" }} />
+            </span>
+          </div>
+        )}
+        {error && <p className="self-center rounded-lg bg-destructive/10 px-3 py-1 text-xs text-destructive">{error}</p>}
+      </div>
+
+      {msgs.length <= 1 && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {HINTS[age].map((h) => (
+            <button
+              key={h}
+              onClick={() => send(h)}
+              className="rounded-full bg-secondary px-3 py-1.5 text-xs active:scale-95"
+            >
+              {h}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="mt-3 flex gap-2">
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && send()}
+          placeholder={age === "6" ? "对小时候的自己说点什么…" : "对未来的自己说点什么…"}
+          disabled={loading}
+          className="flex-1 rounded-xl border-2 border-border bg-background px-4 py-2 outline-none focus:border-primary disabled:opacity-60"
+        />
+        <button
+          onClick={() => send()}
+          disabled={loading || !text.trim()}
+          className="rounded-xl bg-primary px-3 text-primary-foreground active:scale-95 disabled:opacity-50"
+        >
+          <Send className="h-4 w-4" />
+        </button>
+      </div>
+
+      {turns >= 3 && (
+        <button
+          onClick={onFinish}
+          className="mt-3 w-full rounded-full bg-primary py-3 text-sm font-bold text-primary-foreground active:scale-95"
+        >
+          结束对话 · 完成打卡
+        </button>
+      )}
+      {turns > 0 && turns < 3 && (
+        <p className="mt-2 text-center text-xs text-muted-foreground">
+          再聊 {3 - turns} 轮就能完成今日打卡 ✨
+        </p>
+      )}
+    </div>
+  );
+}
+
