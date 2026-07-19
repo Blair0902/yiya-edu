@@ -104,8 +104,8 @@ function GameBody({ gameId, color, onFinish }: { gameId: GameId; color: string; 
   if (gameId === "english") return <English color={color} onFinish={onFinish} />;
   if (gameId === "why") return <WhyGame color={color} onFinish={onFinish} />;
   if (gameId === "hats") return <SixHats color={color} onFinish={onFinish} />;
-  if (gameId === "talk6") return <TimeChat color={color} age="6" onFinish={onFinish} />;
-  if (gameId === "talk30") return <TimeChat color={color} age="30" onFinish={onFinish} />;
+  if (gameId === "talk6") return <BottleDrop color={color} age="6" onFinish={onFinish} />;
+  if (gameId === "talk30") return <BottleDrop color={color} age="30" onFinish={onFinish} />;
   return <Schulte color={color} onFinish={onFinish} />;
 
 }
