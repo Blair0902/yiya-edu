@@ -5,15 +5,17 @@ export type PetMode = "student" | "parent";
 export type PetConfig = {
   adopted: boolean;
   name: string;
-  color: string; // key from COLORS
+  color: string;
   traits: string[];
   personality?: string;
   personalityCode?: string;
-  avatar?: string; // fallback emoji
-  avatarImage?: string; // AI-generated pet image (data URL)
+  avatar?: string;
+  avatarImage?: string;
   eggColor?: string;
   eggPattern?: string;
   mode: PetMode;
+  mbti?: string;
+  tags?: string[];
 };
 
 export const PET_COLORS = [
@@ -22,6 +24,11 @@ export const PET_COLORS = [
   { key: "berry", label: "莓果粉", bg: "oklch(0.85 0.13 15)", emoji: "🐰" },
   { key: "sky", label: "天空蓝", bg: "oklch(0.85 0.12 230)", emoji: "🐳" },
   { key: "lavender", label: "薰衣紫", bg: "oklch(0.85 0.1 310)", emoji: "🦄" },
+] as const;
+
+export const PET_AVATARS = [
+  "🐥", "🐰", "🐱", "🐶", "🦊", "🐼", "🐨", "🐯",
+  "🐸", "🐳", "🦄", "🐧", "🦉", "🐹", "🐻", "🦁",
 ] as const;
 
 export const PET_TRAITS = ["勇敢", "温柔", "好奇", "调皮", "细心", "乐观", "安静", "热情"] as const;

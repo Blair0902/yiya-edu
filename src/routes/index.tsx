@@ -3,15 +3,14 @@ import { AppShell } from "@/components/AppShell";
 import { AdoptionFlow } from "@/components/AdoptionFlow";
 import { FireworksCanvas } from "@/components/Fireworks";
 import { EmotionDialog } from "@/components/EmotionDialog";
-import { GameModal, type GameId } from "@/components/GameModal";
 import { usePet, PET_COLORS } from "@/lib/pet-store";
 import { addEnergy, useEnergyTotal } from "@/lib/energy-store";
 import sceneImg from "@/assets/scene.jpg";
 import {
   Sparkles, Check, Settings, Share2, Smile, Volume2, MessageCircleHeart, Sparkle, Flame, Heart, Send,
-  CalendarDays, Clock, Rocket, NotebookPen, Plus, X, Trash2,
+  CalendarDays, Plus, X, Trash2,
 } from "lucide-react";
-import { useEffect, useState, useRef, type ReactNode } from "react";
+import { useState, useRef, type ReactNode } from "react";
 
 
 const HABIT_SUGGESTIONS: { cat: string; emoji: string; items: { emoji: string; title: string; energy: number }[] }[] = [
@@ -267,249 +266,12 @@ function StudentHome() {
       </section>
 
       {addOpen && <AddHabitSheet onClose={() => setAddOpen(false)} onAdd={addTask} />}
-
-
-      {/* 自我觉察 — kept on home */}
-      <AwarenessSection />
-
-      {/* 遇见 — kept on home */}
-      <TimeTravelSection />
     </div>
   );
 }
 
-type Reflection = { type: "gain" | "thought"; text: string; at: number };
-const REFLECT_KEY = "doudou.reflections";
 
-function loadReflections(): Reflection[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(REFLECT_KEY);
-    return raw ? (JSON.parse(raw) as Reflection[]) : [];
-  } catch {
-    return [];
-  }
-}
-function saveReflections(list: Reflection[]) {
-  window.localStorage.setItem(REFLECT_KEY, JSON.stringify(list.slice(-50)));
-}
-function isToday(ts: number) {
-  const d = new Date(ts);
-  const n = new Date();
-  return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate();
-}
 
-function AwarenessSection() {
-  const [list, setList] = useState<Reflection[]>([]);
-  const [open, setOpen] = useState<null | "gain" | "thought">(null);
-
-  useEffect(() => {
-    setList(loadReflections());
-  }, []);
-
-  const todayGain = list.find((r) => r.type === "gain" && isToday(r.at));
-  const todayThought = list.find((r) => r.type === "thought" && isToday(r.at));
-
-  const submit = (type: "gain" | "thought", text: string) => {
-    if (!text.trim()) return;
-    const next = [...list, { type, text: text.trim(), at: Date.now() }];
-    setList(next);
-    saveReflections(next);
-    addEnergy({
-      name: type === "gain" ? "今天的一个收获" : "今天的一个感想",
-      emoji: type === "gain" ? "🌟" : "📓",
-      energy: 12,
-      source: "觉察",
-    });
-    setOpen(null);
-  };
-
-  return (
-    <section className="mt-5 px-4">
-      <h3 className="mb-2 px-1 text-sm font-bold text-muted-foreground">💗 自我觉察 · 今天的我</h3>
-      <ul className="flex flex-col gap-2">
-        <li className="card-pop flex items-center gap-3 p-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[oklch(0.92_0.06_15)] text-xl">🌟</div>
-          <div className="flex-1 overflow-hidden">
-            <p className="font-bold">今天的一个收获</p>
-            <p className="truncate text-xs text-muted-foreground">
-              {todayGain ? todayGain.text : "一句话记录今天看见的自己"}
-            </p>
-          </div>
-          <button
-            onClick={() => setOpen("gain")}
-            className={`rounded-full px-3 py-1.5 text-xs font-bold ${
-              todayGain ? "bg-secondary text-foreground/70" : "bg-primary text-primary-foreground"
-            }`}
-          >
-            {todayGain ? "已写 · 修改" : "写下"}
-          </button>
-        </li>
-        <li className="card-pop flex items-center gap-3 p-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[oklch(0.92_0.06_145)] text-xl">
-            <NotebookPen className="h-5 w-5 text-leaf" />
-          </div>
-          <div className="flex-1 overflow-hidden">
-            <p className="font-bold">今天的一个感想</p>
-            <p className="truncate text-xs text-muted-foreground">
-              {todayThought ? todayThought.text : "日记 · 随心写"}
-            </p>
-          </div>
-          <button
-            onClick={() => setOpen("thought")}
-            className={`rounded-full px-3 py-1.5 text-xs font-bold ${
-              todayThought ? "bg-secondary text-foreground/70" : "bg-primary text-primary-foreground"
-            }`}
-          >
-            {todayThought ? "已写 · 修改" : "写下"}
-          </button>
-        </li>
-      </ul>
-
-      {open && (
-        <ReflectSheet
-          type={open}
-          initial={(open === "gain" ? todayGain?.text : todayThought?.text) ?? ""}
-          onClose={() => setOpen(null)}
-          onSubmit={(t) => submit(open, t)}
-        />
-      )}
-    </section>
-  );
-}
-
-function ReflectSheet({
-  type,
-  initial,
-  onClose,
-  onSubmit,
-}: {
-  type: "gain" | "thought";
-  initial: string;
-  onClose: () => void;
-  onSubmit: (text: string) => void;
-}) {
-  const [text, setText] = useState(initial);
-  const isGain = type === "gain";
-  const prompts = isGain
-    ? ["今天我完成了…", "我第一次注意到自己…", "让我小小骄傲的一件事是…"]
-    : ["今天心里有一点…", "让我印象最深的一刻是…", "如果用一个比喻形容今天，那是…"];
-
-  return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 animate-fade-in" onClick={onClose}>
-      <div className="w-full max-w-md rounded-t-3xl bg-background p-5 pb-8 animate-slide-in-right" onClick={(e) => e.stopPropagation()}>
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-lg font-bold">{isGain ? "🌟 今天的一个收获" : "📓 今天的一个感想"}</h3>
-          <button onClick={onClose} aria-label="关闭" className="rounded-full p-1 active:scale-90">
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        <p className="text-xs text-muted-foreground">试试从这里开始：</p>
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          {prompts.map((p) => (
-            <button
-              key={p}
-              onClick={() => setText((t) => (t ? t : p))}
-              className="rounded-full bg-secondary px-3 py-1 text-xs active:scale-95"
-            >
-              {p}
-            </button>
-          ))}
-        </div>
-        <textarea
-          autoFocus
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder={isGain ? "把今天看见自己的那一刻写下来…" : "随心写，写多写少都可以…"}
-          className="mt-3 h-32 w-full rounded-2xl border-2 border-border bg-background p-3 text-sm outline-none focus:border-primary"
-        />
-        <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-          <span>{text.length} 字</span>
-          <span className="flex items-center gap-1 text-primary"><Sparkles className="h-3 w-3" /> +12 能量</span>
-        </div>
-        <button
-          onClick={() => onSubmit(text)}
-          disabled={!text.trim()}
-          className="mt-3 w-full rounded-full bg-primary py-3 text-sm font-bold text-primary-foreground active:scale-95 disabled:opacity-50"
-        >
-          保存并获得能量
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function TimeTravelSection() {
-  const [game, setGame] = useState<null | { id: GameId; title: string; color: string; intro: string }>(null);
-
-  return (
-    <section className="mt-5 px-4 pb-4">
-      <h3 className="mb-2 px-1 text-sm font-bold text-muted-foreground">🌌 遇见 · 跨时空树洞</h3>
-      <ul className="flex flex-col gap-2">
-        <li className="card-pop flex items-center gap-3 p-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[oklch(0.92_0.07_60)]">
-            <Clock className="h-5 w-5 text-[oklch(0.65_0.16_60)]" />
-          </div>
-          <div className="flex-1">
-            <p className="font-bold">给 6 岁的自己 · 漂流瓶</p>
-            <p className="text-xs text-muted-foreground">写一段话扔进大海 · +25 能量</p>
-          </div>
-          <button
-            onClick={() =>
-              setGame({
-                id: "talk6",
-                title: "给 6 岁的自己写一封漂流瓶",
-                color: "oklch(0.65 0.16 60)",
-                intro:
-                  "把想对 6 岁的自己说的话，写成一封信，扔进大海里。这里是一个安静的树洞——每一段文字都会变成一个漂流瓶，只有你本人能凭密码打开查看。",
-              })
-            }
-            className="rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground active:scale-95"
-          >
-            写一封
-          </button>
-        </li>
-        <li className="card-pop flex items-center gap-3 p-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[oklch(0.9_0.08_280)]">
-            <Rocket className="h-5 w-5 text-[oklch(0.6_0.18_280)]" />
-          </div>
-          <div className="flex-1">
-            <p className="font-bold">给 30 岁的自己 · 漂流瓶</p>
-            <p className="text-xs text-muted-foreground">让浪把心事带向未来 · +25 能量</p>
-          </div>
-          <button
-            onClick={() =>
-              setGame({
-                id: "talk30",
-                title: "给 30 岁的自己写一封漂流瓶",
-                color: "oklch(0.6 0.18 280)",
-                intro:
-                  "写一段想让未来的自己看到的话，让它随浪漂向 30 岁的你。树洞里的每一句话都属于你自己——密码保护，只有你能翻看历史漂流瓶。",
-              })
-            }
-            className="rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground active:scale-95"
-          >
-            写一封
-          </button>
-        </li>
-      </ul>
-
-      {game && (
-        <GameModal
-          gameId={game.id}
-          title={game.title}
-          intro={game.intro}
-          energy={25}
-          color={game.color}
-          onClose={() => setGame(null)}
-          onComplete={() =>
-            addEnergy({ name: game.title, energy: 25, source: "跨时空" })
-          }
-        />
-      )}
-    </section>
-  );
-}
 
 
 function SwipeableTask({ children, onDelete }: { children: ReactNode; onDelete: () => void }) {
