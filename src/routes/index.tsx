@@ -444,29 +444,29 @@ function TimeTravelSection() {
 
   return (
     <section className="mt-5 px-4 pb-4">
-      <h3 className="mb-2 px-1 text-sm font-bold text-muted-foreground">🌌 遇见 · 跨时空对话</h3>
+      <h3 className="mb-2 px-1 text-sm font-bold text-muted-foreground">🌌 遇见 · 跨时空树洞</h3>
       <ul className="flex flex-col gap-2">
         <li className="card-pop flex items-center gap-3 p-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[oklch(0.92_0.07_60)]">
             <Clock className="h-5 w-5 text-[oklch(0.65_0.16_60)]" />
           </div>
           <div className="flex-1">
-            <p className="font-bold">与 6 岁的自己对话</p>
-            <p className="text-xs text-muted-foreground">回到那个小小的你 · +25 能量</p>
+            <p className="font-bold">给 6 岁的自己 · 漂流瓶</p>
+            <p className="text-xs text-muted-foreground">写一段话扔进大海 · +25 能量</p>
           </div>
           <button
             onClick={() =>
               setGame({
                 id: "talk6",
-                title: "与 6 岁的自己对话",
+                title: "给 6 岁的自己写一封漂流瓶",
                 color: "oklch(0.65 0.16 60)",
                 intro:
-                  "回到童年的院子，和 6 岁的自己聊一聊。TA 会用小朋友天真的口气回应你，帮你重新看见那些被大人遗忘的心情。至少交流 3 轮即可完成打卡。",
+                  "把想对 6 岁的自己说的话，写成一封信，扔进大海里。这里是一个安静的树洞——每一段文字都会变成一个漂流瓶，只有你本人能凭密码打开查看。",
               })
             }
             className="rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground active:scale-95"
           >
-            开始
+            写一封
           </button>
         </li>
         <li className="card-pop flex items-center gap-3 p-3">
@@ -474,22 +474,22 @@ function TimeTravelSection() {
             <Rocket className="h-5 w-5 text-[oklch(0.6_0.18_280)]" />
           </div>
           <div className="flex-1">
-            <p className="font-bold">与 30 岁的自己对话</p>
-            <p className="text-xs text-muted-foreground">未来的你想说什么 · +25 能量</p>
+            <p className="font-bold">给 30 岁的自己 · 漂流瓶</p>
+            <p className="text-xs text-muted-foreground">让浪把心事带向未来 · +25 能量</p>
           </div>
           <button
             onClick={() =>
               setGame({
                 id: "talk30",
-                title: "与 30 岁的自己对话",
+                title: "给 30 岁的自己写一封漂流瓶",
                 color: "oklch(0.6 0.18 280)",
                 intro:
-                  "去未来见见 30 岁的自己。TA 会用温柔而坚定的语气回应你当下的困惑，分享一份走过弯路后的经验与视角。至少交流 3 轮即可完成打卡。",
+                  "写一段想让未来的自己看到的话，让它随浪漂向 30 岁的你。树洞里的每一句话都属于你自己——密码保护，只有你能翻看历史漂流瓶。",
               })
             }
             className="rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground active:scale-95"
           >
-            开始
+            写一封
           </button>
         </li>
       </ul>

@@ -104,8 +104,8 @@ function GameBody({ gameId, color, onFinish }: { gameId: GameId; color: string; 
   if (gameId === "english") return <English color={color} onFinish={onFinish} />;
   if (gameId === "why") return <WhyGame color={color} onFinish={onFinish} />;
   if (gameId === "hats") return <SixHats color={color} onFinish={onFinish} />;
-  if (gameId === "talk6") return <TimeChat color={color} age="6" onFinish={onFinish} />;
-  if (gameId === "talk30") return <TimeChat color={color} age="30" onFinish={onFinish} />;
+  if (gameId === "talk6") return <BottleDrop color={color} age="6" onFinish={onFinish} />;
+  if (gameId === "talk30") return <BottleDrop color={color} age="30" onFinish={onFinish} />;
   return <Schulte color={color} onFinish={onFinish} />;
 
 }
@@ -741,19 +741,26 @@ function Schulte({ color, onFinish }: { color: string; onFinish: () => void }) {
   );
 }
 
-/* -------- 与 6 岁 / 30 岁的自己对话 (AI) -------- */
-type ChatMsg = { role: "user" | "assistant"; content: string };
+/* -------- 树洞漂流瓶 · 跨时空 -------- */
+type Bottle = { age: "6" | "30"; text: string; at: number };
+const BOTTLES_KEY = "doudou.bottles.v1";
+const BOTTLE_PWD_KEY = "doudou.bottles.pwd.v1";
 
-const OPENERS: Record<"6" | "30", string> = {
-  "6": "嗨呀～是长大的我吗？我在小时候的院子里等你好久啦！你今天开心吗？",
-  "30": "嘿，是你呀。坐下来喝口水，慢慢说——今天心里在想什么？",
-};
-const HINTS: Record<"6" | "30", string[]> = {
-  "6": ["还记得我最喜欢的玩具吗？", "你现在还怕黑吗？", "你有没有交到新朋友？"],
-  "30": ["我最近有件事拿不定主意…", "我担心自己不够好。", "如果你能重来一次，会怎么做？"],
-};
+async function sha256(s: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
 
-function TimeChat({
+function readBottles(): Bottle[] {
+  try { return JSON.parse(localStorage.getItem(BOTTLES_KEY) || "[]"); } catch { return []; }
+}
+function saveBottle(b: Bottle) {
+  const list = readBottles();
+  list.unshift(b);
+  localStorage.setItem(BOTTLES_KEY, JSON.stringify(list));
+}
+
+function BottleDrop({
   color,
   age,
   onFinish,
@@ -762,130 +769,193 @@ function TimeChat({
   age: "6" | "30";
   onFinish: () => void;
 }) {
-  const [msgs, setMsgs] = useState<ChatMsg[]>([
-    { role: "assistant", content: OPENERS[age] },
-  ]);
+  const label = age === "6" ? "6 岁的自己" : "30 岁的自己";
   const [text, setText] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-  const label = age === "6" ? "6 岁的我" : "30 岁的我";
-  const turns = msgs.filter((m) => m.role === "user").length;
+  const [dropping, setDropping] = useState(false);
+  const [dropped, setDropped] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [unlocked, setUnlocked] = useState(false);
+  const [pwd, setPwd] = useState("");
+  const [pwdErr, setPwdErr] = useState<string | null>(null);
+  const [isFirstTime, setIsFirstTime] = useState(false);
+  const [bottles, setBottles] = useState<Bottle[]>([]);
 
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [msgs, loading]);
+  const drop = () => {
+    if (!text.trim() || dropping) return;
+    saveBottle({ age, text: text.trim(), at: Date.now() });
+    setDropping(true);
+    setTimeout(() => {
+      setDropped(true);
+      setTimeout(() => onFinish(), 1200);
+    }, 1600);
+  };
 
-  const send = async (raw?: string) => {
-    const content = (raw ?? text).trim();
-    if (!content || loading) return;
-    const next: ChatMsg[] = [...msgs, { role: "user", content }];
-    setMsgs(next);
-    setText("");
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/time-chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ age, messages: next }),
-      });
-      if (res.status === 429) throw new Error("对话太热烈啦～稍等一下再说");
-      if (res.status === 402) throw new Error("今天的对话额度用完了，明天再来吧");
-      if (!res.ok) throw new Error("网络有点小情绪，重试一下～");
-      const data = (await res.json()) as { reply: string };
-      setMsgs((m) => [...m, { role: "assistant", content: data.reply }]);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "出错了");
-    } finally {
-      setLoading(false);
+  const openHistory = async () => {
+    const has = !!localStorage.getItem(BOTTLE_PWD_KEY);
+    setIsFirstTime(!has);
+    setPwd("");
+    setPwdErr(null);
+    setUnlocked(false);
+    setShowHistory(true);
+  };
+
+  const submitPwd = async () => {
+    if (!pwd.trim()) { setPwdErr("请输入密码"); return; }
+    const hash = await sha256(pwd);
+    if (isFirstTime) {
+      localStorage.setItem(BOTTLE_PWD_KEY, hash);
+      setUnlocked(true);
+      setBottles(readBottles());
+      return;
+    }
+    const stored = localStorage.getItem(BOTTLE_PWD_KEY);
+    if (stored === hash) {
+      setUnlocked(true);
+      setBottles(readBottles());
+    } else {
+      setPwdErr("密码不对，再想想 🌊");
     }
   };
+
+  if (dropped) {
+    return (
+      <div className="py-6 text-center">
+        <div className="text-5xl">🌊</div>
+        <p className="mt-3 text-base font-bold">漂流瓶已投入大海</p>
+        <p className="mt-1 text-xs text-muted-foreground">你的心意，正在慢慢漂向 {label}…</p>
+      </div>
+    );
+  }
 
   return (
     <div>
       <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
-        <span>正在对话：<span className="font-bold" style={{ color }}>{label}</span></span>
-        <span>已交流 {turns} 轮</span>
+        <span>写给：<span className="font-bold" style={{ color }}>{label}</span></span>
+        <button
+          onClick={openHistory}
+          className="rounded-full bg-secondary px-3 py-1 text-xs font-bold active:scale-95"
+        >
+          🔒 我的树洞
+        </button>
       </div>
-      <div
-        ref={scrollRef}
-        className="flex max-h-72 min-h-[16rem] flex-col gap-2 overflow-y-auto rounded-2xl bg-card p-3"
-      >
-        {msgs.map((m, i) => (
-          <div
-            key={i}
-            className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap ${
-              m.role === "user"
-                ? "self-end bg-primary text-primary-foreground"
-                : "self-start bg-background"
-            }`}
-            style={m.role === "assistant" ? { borderLeft: `3px solid ${color}` } : undefined}
-          >
-            {m.content}
-          </div>
-        ))}
-        {loading && (
-          <div
-            className="self-start rounded-2xl bg-background px-3 py-2 text-sm text-muted-foreground"
-            style={{ borderLeft: `3px solid ${color}` }}
-          >
-            <span className="inline-flex gap-1">
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground" style={{ animationDelay: "0ms" }} />
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground" style={{ animationDelay: "150ms" }} />
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground" style={{ animationDelay: "300ms" }} />
-            </span>
+
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-[oklch(0.92_0.08_230)] to-[oklch(0.78_0.14_230)] p-4">
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value.slice(0, 500))}
+          disabled={dropping}
+          placeholder={
+            age === "6"
+              ? "对小时候的自己说点什么… 这里只有你自己能看见 🌱"
+              : "对未来的自己说点什么… 这里只有你自己能看见 ✨"
+          }
+          className="h-40 w-full resize-none rounded-xl bg-background/85 p-3 text-sm outline-none placeholder:text-muted-foreground"
+        />
+        <div className="mt-1 flex items-center justify-between text-[10px] text-white/90">
+          <span>写下的每句话都会变成一个漂流瓶</span>
+          <span>{text.length}/500</span>
+        </div>
+
+        {dropping && (
+          <div className="pointer-events-none absolute inset-0">
+            <div
+              className="absolute text-4xl"
+              style={{
+                left: "50%",
+                top: "20%",
+                animation: "bottleThrow 1.6s ease-in forwards",
+              }}
+            >
+              🍾
+            </div>
+            <style>{`
+              @keyframes bottleThrow {
+                0%   { transform: translate(-50%, 0) rotate(-20deg); opacity: 1; }
+                60%  { transform: translate(60%, -30%) rotate(90deg); opacity: 1; }
+                100% { transform: translate(120%, 120%) rotate(220deg); opacity: 0; }
+              }
+            `}</style>
           </div>
         )}
-        {error && <p className="self-center rounded-lg bg-destructive/10 px-3 py-1 text-xs text-destructive">{error}</p>}
       </div>
 
-      {msgs.length <= 1 && (
-        <div className="mt-3 flex flex-wrap gap-2">
-          {HINTS[age].map((h) => (
-            <button
-              key={h}
-              onClick={() => send(h)}
-              className="rounded-full bg-secondary px-3 py-1.5 text-xs active:scale-95"
-            >
-              {h}
-            </button>
-          ))}
+      <button
+        onClick={drop}
+        disabled={!text.trim() || dropping}
+        className="mt-3 w-full rounded-full bg-primary py-3 text-sm font-bold text-primary-foreground active:scale-95 disabled:opacity-50"
+      >
+        {dropping ? "正在投入大海…" : "🌊 扔进大海 · 完成打卡"}
+      </button>
+      <p className="mt-2 text-center text-[11px] text-muted-foreground">
+        树洞里的话只有你本人可以打开（需要密码）
+      </p>
+
+      {showHistory && (
+        <div
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-5 animate-fade-in"
+          onClick={() => setShowHistory(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-3xl bg-background p-5 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <h4 className="text-base font-bold">🔒 我的树洞</h4>
+              <button onClick={() => setShowHistory(false)} className="rounded-full p-1 active:scale-90">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {!unlocked ? (
+              <div>
+                <p className="text-xs text-muted-foreground">
+                  {isFirstTime
+                    ? "这是你第一次打开树洞，请设置一个只有你知道的密码。"
+                    : "输入你设置过的密码，只有你能看见这些漂流瓶。"}
+                </p>
+                <input
+                  type="password"
+                  value={pwd}
+                  onChange={(e) => setPwd(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && submitPwd()}
+                  autoFocus
+                  placeholder={isFirstTime ? "设置一个密码" : "输入密码"}
+                  className="mt-3 w-full rounded-xl border-2 border-border bg-background px-4 py-2 text-sm outline-none focus:border-primary"
+                />
+                {pwdErr && <p className="mt-1 text-xs text-destructive">{pwdErr}</p>}
+                <button
+                  onClick={submitPwd}
+                  className="mt-3 w-full rounded-full bg-primary py-2.5 text-sm font-bold text-primary-foreground active:scale-95"
+                >
+                  {isFirstTime ? "设置并打开" : "打开树洞"}
+                </button>
+              </div>
+            ) : (
+              <div className="max-h-[60vh] overflow-y-auto">
+                {bottles.length === 0 ? (
+                  <p className="py-8 text-center text-sm text-muted-foreground">
+                    海面平静，还没有漂流瓶 🌊
+                  </p>
+                ) : (
+                  <ul className="flex flex-col gap-2">
+                    {bottles.map((b, i) => (
+                      <li key={i} className="rounded-2xl bg-card p-3 ring-1 ring-border">
+                        <div className="mb-1 flex items-center justify-between text-[11px] text-muted-foreground">
+                          <span>致 {b.age === "6" ? "6 岁的我" : "30 岁的我"}</span>
+                          <span>{new Date(b.at).toLocaleDateString()}</span>
+                        </div>
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed">{b.text}</p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      )}
-
-      <div className="mt-3 flex gap-2">
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && send()}
-          placeholder={age === "6" ? "对小时候的自己说点什么…" : "对未来的自己说点什么…"}
-          disabled={loading}
-          className="flex-1 rounded-xl border-2 border-border bg-background px-4 py-2 outline-none focus:border-primary disabled:opacity-60"
-        />
-        <button
-          onClick={() => send()}
-          disabled={loading || !text.trim()}
-          className="rounded-xl bg-primary px-3 text-primary-foreground active:scale-95 disabled:opacity-50"
-        >
-          <Send className="h-4 w-4" />
-        </button>
-      </div>
-
-      {turns >= 3 && (
-        <button
-          onClick={onFinish}
-          className="mt-3 w-full rounded-full bg-primary py-3 text-sm font-bold text-primary-foreground active:scale-95"
-        >
-          结束对话 · 完成打卡
-        </button>
-      )}
-      {turns > 0 && turns < 3 && (
-        <p className="mt-2 text-center text-xs text-muted-foreground">
-          再聊 {3 - turns} 轮就能完成今日打卡 ✨
-        </p>
       )}
     </div>
   );
 }
+
 

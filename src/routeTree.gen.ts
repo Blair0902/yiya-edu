@@ -21,7 +21,6 @@ import { Route as EnergyRouteImport } from './routes/energy'
 import { Route as EmotionRouteImport } from './routes/emotion'
 import { Route as ChallengesRouteImport } from './routes/challenges'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ApiTimeChatRouteImport } from './routes/api/time-chat'
 import { Route as ApiGeneratePetRouteImport } from './routes/api/generate-pet'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
@@ -87,11 +86,6 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiTimeChatRoute = ApiTimeChatRouteImport.update({
-  id: '/api/time-chat',
-  path: '/api/time-chat',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiGeneratePetRoute = ApiGeneratePetRouteImport.update({
   id: '/api/generate-pet',
   path: '/api/generate-pet',
@@ -132,7 +126,6 @@ export interface FileRoutesByFullPath {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/generate-pet': typeof ApiGeneratePetRoute
-  '/api/time-chat': typeof ApiTimeChatRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
 }
 export interface FileRoutesByTo {
@@ -151,7 +144,6 @@ export interface FileRoutesByTo {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/generate-pet': typeof ApiGeneratePetRoute
-  '/api/time-chat': typeof ApiTimeChatRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
 }
 export interface FileRoutesById {
@@ -171,7 +163,6 @@ export interface FileRoutesById {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/generate-pet': typeof ApiGeneratePetRoute
-  '/api/time-chat': typeof ApiTimeChatRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
 }
 export interface FileRouteTypes {
@@ -192,7 +183,6 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/api/generate-pet'
-    | '/api/time-chat'
     | '/.mcp/invoke-tool/$tool'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -211,7 +201,6 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/api/generate-pet'
-    | '/api/time-chat'
     | '/.mcp/invoke-tool/$tool'
   id:
     | '__root__'
@@ -230,7 +219,6 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/api/generate-pet'
-    | '/api/time-chat'
     | '/.mcp/invoke-tool/$tool'
   fileRoutesById: FileRoutesById
 }
@@ -250,7 +238,6 @@ export interface RootRouteChildren {
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ApiGeneratePetRoute: typeof ApiGeneratePetRoute
-  ApiTimeChatRoute: typeof ApiTimeChatRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
 }
 
@@ -340,13 +327,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/time-chat': {
-      id: '/api/time-chat'
-      path: '/api/time-chat'
-      fullPath: '/api/time-chat'
-      preLoaderRoute: typeof ApiTimeChatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/generate-pet': {
       id: '/api/generate-pet'
       path: '/api/generate-pet'
@@ -395,7 +375,6 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ApiGeneratePetRoute: ApiGeneratePetRoute,
-  ApiTimeChatRoute: ApiTimeChatRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
 }
 export const routeTree = rootRouteImport
