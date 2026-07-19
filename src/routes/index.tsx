@@ -3,15 +3,14 @@ import { AppShell } from "@/components/AppShell";
 import { AdoptionFlow } from "@/components/AdoptionFlow";
 import { FireworksCanvas } from "@/components/Fireworks";
 import { EmotionDialog } from "@/components/EmotionDialog";
-import { GameModal, type GameId } from "@/components/GameModal";
 import { usePet, PET_COLORS } from "@/lib/pet-store";
 import { addEnergy, useEnergyTotal } from "@/lib/energy-store";
 import sceneImg from "@/assets/scene.jpg";
 import {
   Sparkles, Check, Settings, Share2, Smile, Volume2, MessageCircleHeart, Sparkle, Flame, Heart, Send,
-  CalendarDays, Clock, Rocket, NotebookPen, Plus, X, Trash2,
+  CalendarDays, Plus, X, Trash2,
 } from "lucide-react";
-import { useEffect, useState, useRef, type ReactNode } from "react";
+import { useState, useRef, type ReactNode } from "react";
 
 
 const HABIT_SUGGESTIONS: { cat: string; emoji: string; items: { emoji: string; title: string; energy: number }[] }[] = [
@@ -267,13 +266,6 @@ function StudentHome() {
       </section>
 
       {addOpen && <AddHabitSheet onClose={() => setAddOpen(false)} onAdd={addTask} />}
-
-
-      {/* 自我觉察 — kept on home */}
-      <AwarenessSection />
-
-      {/* 遇见 — kept on home */}
-      <TimeTravelSection />
     </div>
   );
 }
