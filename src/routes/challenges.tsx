@@ -98,16 +98,16 @@ const initial: Section[] = [
         title: "对话",
         items: [
           {
-            icon: Clock, name: "与 6 岁的自己对话", energy: 25, done: 0, total: 1, color: "oklch(0.78 0.13 60)", tag: "AI",
+            icon: Clock, name: "给 6 岁的自己写一封漂流瓶", energy: 25, done: 0, total: 1, color: "oklch(0.78 0.13 60)", tag: "树洞",
             game: "talk6",
             intro:
-              "回到童年的院子，和 6 岁的自己聊一聊。TA 会用小朋友天真的口气回应你，帮你重新看见那些被大人遗忘的心情。至少交流 3 轮即可完成打卡。",
+              "把想对 6 岁的自己说的话，写成一封信，扔进大海里。这里是一个安静的树洞——每一段文字都会变成一个漂流瓶，只有你本人能凭密码打开查看。",
           },
           {
-            icon: Rocket, name: "与 30 岁的自己对话", energy: 25, done: 0, total: 1, color: "oklch(0.72 0.16 280)", tag: "AI",
+            icon: Rocket, name: "给 30 岁的自己写一封漂流瓶", energy: 25, done: 0, total: 1, color: "oklch(0.72 0.16 280)", tag: "树洞",
             game: "talk30",
             intro:
-              "去未来见见 30 岁的自己。TA 会用温柔而坚定的语气回应你当下的困惑，分享一份走过弯路后的经验与视角。至少交流 3 轮即可完成打卡。",
+              "写一段想让未来的自己看到的话，让它随浪漂向 30 岁的你。树洞里的每一句话都属于你自己——密码保护，只有你能翻看历史漂流瓶。",
           },
 
         ],
